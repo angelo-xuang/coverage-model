@@ -26,7 +26,7 @@ ASSUMPTIONS = {
         'expense_start': 0.277,     # 2025A 实际
         'expense_end': 0.290,       # 需要更多投入维持竞争
         'tax_rate': 0.17,
-        'target_pe': 22,
+        'target_pe': 22,            # 向历史中位PE回归
         'shares_m': 5824,
     },
     'base': {
@@ -42,7 +42,7 @@ ASSUMPTIONS = {
         'expense_start': 0.277,     # 2025A 实际
         'expense_end': 0.260,       # 修正：-1.7pp（非-3.2pp）
         'tax_rate': 0.15,
-        'target_pe': 27,
+        'target_pe': 27,            # 接近当前PE
         'shares_m': 5824,
     },
     'bull': {
@@ -58,7 +58,7 @@ ASSUMPTIONS = {
         'expense_start': 0.277,     # 2025A 实际
         'expense_end': 0.245,       # 修正：从23%提到24.5%
         'tax_rate': 0.14,
-        'target_pe': 33,
+        'target_pe': 33,            # AI溢价维持
         'shares_m': 5824,
     },
 }
@@ -143,6 +143,9 @@ def project_scenario(name: str, params: dict, hist_data: dict, n_years: int = 10
             prev_rev = rows[t - 1]['rev']
             rev_growth = (rev - prev_rev) / prev_rev if prev_rev else 0
 
+        # PE: 使用 target_pe 作为终年PE
+        pe = params['target_pe']
+
         rows[t] = {
             'tam': tam,
             'sam': sam,
@@ -158,13 +161,14 @@ def project_scenario(name: str, params: dict, hist_data: dict, n_years: int = 10
             'net_income': net_income,
             'ebit_margin': ebit / rev if rev else 0,
             'net_margin': net_income / rev if rev else 0,
+            'pe': pe,
         }
 
-    # 估值
+    # 估值：用终年 PE
     terminal_ni = rows[n_years]['net_income']
-    target_pe = params['target_pe']
+    terminal_pe = rows[n_years]['pe']
     shares_m = params['shares_m']
-    mkt_cap = terminal_ni * target_pe
+    mkt_cap = terminal_ni * terminal_pe
     price = mkt_cap * 1000 / shares_m
     annual_return = (price / VAL_DATA['current_price']) ** (1 / n_years) - 1
 
@@ -314,16 +318,17 @@ def main():
     print(f"\n{'='*80}")
     print(f"  BASE CASE — 逐年明细")
     print(f"{'='*80}")
-    header = f"{'年份':>6} {'TAM':>8} {'SAM':>8} {'MS':>6} {'收入':>8} {'增速':>6} {'GM':>6} {'EBIT':>8} {'NI':>8} {'股价':>8}"
+    header = f"{'Year':>6} {'TAM':>8} {'SAM':>8} {'MS':>6} {'Rev':>8} {'Gr':>6} {'GM':>6} {'EBIT':>8} {'NI':>8} {'PE':>5} {'Price':>8}"
     print(f"  {header}")
-    print(f"  {'-'*76}")
+    print(f"  {'-'*82}")
     for t in range(1, 11):
         r = base_rows[t]
         year = 2025 + t
+        implied_price = r['net_income'] * r['pe'] * 1000 / 5824
         print(f"  {year}E {r['tam']:>8,.0f} {r['sam']:>8,.0f} {r['ms']:>6.1%} "
               f"{r['rev']:>8,.1f} {r['rev_growth']:>6.1%} {r['gm']:>6.1%} "
-              f"{r['ebit']:>8,.1f} {r['net_income']:>8,.1f} "
-              f"${r['net_income']*27*1000/5824:>8,.1f}")
+              f"{r['ebit']:>8,.1f} {r['net_income']:>8,.1f} {r['pe']:>5.1f} "
+              f"${implied_price:>8,.1f}")
 
     # 合理性检验
     checks = sanity_checks(scenarios, HIST_DATA)
@@ -334,12 +339,42 @@ def main():
         vals = ' | '.join(filter(None, [c['bear'], c['base'], c['bull']]))
         print(f"  {c['name']:<40} {c['status']}")
 
+    # 假设来源注释（说明每个数字是怎么推导出来的）
+    sources = {
+        'tam_start': '基于Gartner 2025全球IT支出预测(~$5T) × 数字化服务渗透率，取$3T作为GOOGL可参与市场',
+        'tam_cagr_1_3': '基于IDC/Gartner对AI和云计算支出的增速预测(15-25%)，Bear取低、Bull取高',
+        'tam_cagr_4_6': '增速衰减假设：参考S曲线，渗透率10%-50%阶段增速自然下降',
+        'tam_cagr_7_10': '长期增速向GDP+通胀回归(3-6%)，参考Cisco/AWS历史增速衰减轨迹',
+        'reachable_rate': '40%：基于GOOGL业务覆盖（搜索+Cloud+YouTube+Android）占全球数字支出的比例',
+        'share_start': '33.6%：基于2025A实际收入/$3T SAM计算',
+        'share_end': 'Bear 31%: 搜索被AI蚕食>Cloud增量; Base 34%: 基本持平; Bull 38%: Cloud+AI持续抢份额',
+        'gm_start': '59.7%：2025A实际毛利率',
+        'gm_end': 'Bear 58%: AI CapEx折旧压制; Base 61.5%: 每5年+1.8pp(参考2019-2025轨迹); Bull 64%: AI效率提升',
+        'expense_start': '27.7%：2025A实际费用率(RD+SGA占收入比)',
+        'expense_end': 'Bear 29%: 竞争加剧需更多投入; Base 26%: 规模效应-1.7pp; Bull 24.5%: AI自动化降本',
+        'tax_rate': '基于GOOGL历史有效税率14-17%，Bear取高、Bull取低',
+        'target_pe': 'Bear 22x: 向历史中位PE回归; Base 27x: 接近当前PE; Bull 33x: AI溢价维持',
+        'shares_m': '5824M：基于yfinance当前流通股数',
+    }
+
     # 输出 JSON 供 build_excel.py 使用
     output = {
         'hist_data': HIST_DATA,
         'val_data': VAL_DATA,
         'assumptions': ASSUMPTIONS,
         'checks': checks,
+        'sources': sources,
+        'language': 'en',
+        'currency_symbol': '$',
+        'unit_suffix': 'M',
+        'fiscal_year_analysis': {
+            'fy_end_month': 12,
+            'fiscal_year_end': '12-31',
+            'is_calendar_year': True,
+            'mapping_rule': 'FY ends in December, aligned with calendar year',
+            'date_mappings': {},
+            'fiscal_year_note': 'Google fiscal year ends December 31, aligned with calendar year. No mapping needed.',
+        },
     }
 
     out_path = './out/googl_model_data.json'
