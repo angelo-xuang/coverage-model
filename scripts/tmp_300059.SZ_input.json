@@ -1,0 +1,249 @@
+{
+  "model_type": "tam_standard",
+  "language": "zh-CN",
+  "currency_symbol": "¥",
+  "unit_suffix": "B",
+  "ticker": "300059.SZ",
+  "company_name": "东方财富",
+  "hist_data": {
+    "2022A": {
+      "revenue": 12.4856,
+      "revenue_growth": null,
+      "cogs": 0.5342,
+      "gross_profit": 11.9514,
+      "gross_margin": 0.9572,
+      "rd": 0.9362,
+      "rd_ratio": 0.0749,
+      "sga": 0.9486,
+      "sga_ratio": 0.0759,
+      "opex": 3.3782,
+      "ebit": 8.5741,
+      "ebit_margin": 0.6867,
+      "net_income": 8.5095,
+      "net_margin": 0.6815
+    },
+    "2023A": {
+      "revenue": 11.0814,
+      "revenue_growth": -0.1125,
+      "cogs": 0.5379,
+      "gross_profit": 10.5435,
+      "gross_margin": 0.9515,
+      "rd": 1.0804,
+      "rd_ratio": 0.0975,
+      "sga": 0.9453,
+      "sga_ratio": 0.0853,
+      "opex": 3.5853,
+      "ebit": 6.9595,
+      "ebit_margin": 0.628,
+      "net_income": 8.1935,
+      "net_margin": 0.7394
+    },
+    "2024A": {
+      "revenue": 11.6043,
+      "revenue_growth": 0.0472,
+      "cogs": 0.4964,
+      "gross_profit": 11.1079,
+      "gross_margin": 0.9572,
+      "rd": 1.1425,
+      "rd_ratio": 0.0985,
+      "sga": 0.8999,
+      "sga_ratio": 0.0776,
+      "opex": 3.5049,
+      "ebit": 7.6040,
+      "ebit_margin": 0.6553,
+      "net_income": 9.6101,
+      "net_margin": 0.8281
+    },
+    "2025A": {
+      "revenue": 16.0677,
+      "revenue_growth": 0.3846,
+      "cogs": 0.5481,
+      "gross_profit": 15.5196,
+      "gross_margin": 0.9659,
+      "rd": 1.0668,
+      "rd_ratio": 0.0664,
+      "sga": 1.0942,
+      "sga_ratio": 0.0681,
+      "opex": 3.8947,
+      "ebit": 11.6250,
+      "ebit_margin": 0.7235,
+      "net_income": 12.0846,
+      "net_margin": 0.7521
+    }
+  },
+  "segment_history": {},
+  "val_data": {
+    "current_price": 21.08,
+    "current_pe": 25.4,
+    "forward_pe": 20.7,
+    "current_market_cap": 333150000000,
+    "shares_outstanding": 15804037675,
+    "fifty_two_week_high": 29.36,
+    "fifty_two_week_low": 18.35
+  },
+  "pe_history": {
+    "2021A": {"pe": 38.5, "mkt_cap": 323.0, "price": 20.43},
+    "2022A": {"pe": 30.2, "mkt_cap": 256.9, "price": 16.26},
+    "2023A": {"pe": 25.8, "mkt_cap": 211.4, "price": 13.38},
+    "2024A": {"pe": 28.5, "mkt_cap": 273.9, "price": 17.33},
+    "2025A": {"pe": 25.4, "mkt_cap": 333.2, "price": 21.08}
+  },
+  "assumptions": {
+    "bear": {
+      "tam_start": 540.0,
+      "tam_cagr_1_3": 0.06,
+      "tam_cagr_4_6": 0.05,
+      "tam_cagr_7_10": 0.04,
+      "reachable_rate": 0.38,
+      "share_start": 0.072,
+      "share_end": 0.085,
+      "gm_start": 0.94,
+      "gm_end": 0.92,
+      "expense_start": 0.24,
+      "expense_end": 0.26,
+      "tax_rate": 0.16,
+      "pe_start": 22.0,
+      "pe_end": 18.0,
+      "shares_m": 15804
+    },
+    "base": {
+      "tam_start": 540.0,
+      "tam_cagr_1_3": 0.08,
+      "tam_cagr_4_6": 0.07,
+      "tam_cagr_7_10": 0.05,
+      "reachable_rate": 0.40,
+      "share_start": 0.075,
+      "share_end": 0.10,
+      "gm_start": 0.96,
+      "gm_end": 0.94,
+      "expense_start": 0.22,
+      "expense_end": 0.23,
+      "tax_rate": 0.16,
+      "pe_start": 26.0,
+      "pe_end": 22.0,
+      "shares_m": 15804
+    },
+    "bull": {
+      "tam_start": 540.0,
+      "tam_cagr_1_3": 0.10,
+      "tam_cagr_4_6": 0.09,
+      "tam_cagr_7_10": 0.06,
+      "reachable_rate": 0.42,
+      "share_start": 0.078,
+      "share_end": 0.12,
+      "gm_start": 0.97,
+      "gm_end": 0.96,
+      "expense_start": 0.20,
+      "expense_end": 0.20,
+      "tax_rate": 0.15,
+      "pe_start": 30.0,
+      "pe_end": 26.0,
+      "shares_m": 15804
+    }
+  },
+  "segments": [],
+  "company_assumptions": {},
+  "checks": {
+    "layer1": [
+      {
+        "name": "Base Y1 Revenue ≈ 2025A Revenue",
+        "bear": "¥16.05B (share=7.2%)",
+        "base": "¥16.58B (share=7.5%)",
+        "bull": "¥17.08B (share=7.8%)",
+        "status": "PASS - Base Y1 ¥16.58B vs 2025A ¥16.07B, close match"
+      },
+      {
+        "name": "Gross Margin consistent with history",
+        "bear": "94.0% → 92.0%",
+        "base": "96.0% → 94.0%",
+        "bull": "97.0% → 96.0%",
+        "status": "PASS - History 95-97%, range reasonable"
+      },
+      {
+        "name": "Expense Ratio vs historical OpEx/Revenue",
+        "bear": "24% → 26%",
+        "base": "22% → 23%",
+        "bull": "20% → 20%",
+        "status": "PASS - History 21-32% (opex includes interest), core ~20-24%"
+      }
+    ],
+    "layer2": [
+      {
+        "name": "Terminal Revenue: Bear < Base < Bull",
+        "bear": "¥47.6B",
+        "base": "¥70.2B",
+        "bull": "¥100.5B",
+        "status": "PASS - Ordering correct"
+      },
+      {
+        "name": "Terminal Implied Price: Bear < Base < Bull",
+        "bear": "¥36.5",
+        "base": "¥62.8",
+        "bull": "¥119.2",
+        "status": "PASS - Ordering correct"
+      },
+      {
+        "name": "Revenue CAGR (10yr): Bear < Base < Bull",
+        "bear": "~12.8%",
+        "base": "~17.8%",
+        "bull": "~22.7%",
+        "status": "PASS - Ordering correct"
+      }
+    ],
+    "layer3": [
+      {
+        "name": "Current PE vs model PE range",
+        "bear": "PE 22→18",
+        "base": "PE 26→22",
+        "bull": "PE 30→26",
+        "status": "PASS - Current PE 25.4, within 22-30 range"
+      },
+      {
+        "name": "Revenue vs consensus estimates",
+        "bear": "Conservative growth",
+        "base": "Moderate growth",
+        "bull": "Aggressive growth",
+        "status": "WARN - Need consensus data for validation"
+      },
+      {
+        "name": "Market share trajectory vs competition",
+        "bear": "7.2% → 8.5%",
+        "base": "7.5% → 10%",
+        "bull": "7.8% → 12%",
+        "status": "PASS - Tiantianjiin top-3, room to grow in online brokerage"
+      }
+    ]
+  },
+  "sources": {
+    "tam_start": "中国证券业协会: 2025年行业营收¥5,412B (150家券商)",
+    "tam_cagr_1_3": "行业增长预期: 资本市场改革+居民财富搬家驱动",
+    "tam_cagr_4_6": "中期增速放缓: 市场成熟度提升",
+    "tam_cagr_7_10": "终端增速: 接近GDP增速",
+    "reachable_rate": "线上渠道渗透率约35-45%, 东财为互联网券商龙头",
+    "share_start": "2025A: 东财营收¥16.07B / (TAM¥540B×40%) = 7.4%",
+    "share_end": "参考: 天天基金代销TOP3, 证券经纪市占率持续上行",
+    "gm_start": "历史毛利率 95-97% (2022-2025A)",
+    "gm_end": "竞争加剧+降费环境下毛利率略有收窄",
+    "expense_start": "历史费用率: R&D 7-10% + SGA 7-9% ≈ 核心费用率 20-24%",
+    "expense_end": "规模效应下费用率有望优化",
+    "tax_rate": "有效税率约15-17%",
+    "pe_start": "当前PE约25x, 历史5年区间 25-39x",
+    "pe_end": "成熟期PE收窄, 参考国际金融科技 18-26x",
+    "shares_m": "总股本15,804M股"
+  },
+  "fiscal_year_analysis": {
+    "fy_end_month": 12,
+    "fy_end_day": 31,
+    "fiscal_year_end": "12-31",
+    "mapping_rule": "FY结束于12月，与自然年一致，直接使用FY标签年份",
+    "is_calendar_year": true,
+    "natural_year_offset": 0,
+    "fiscal_year_note": "【财年定义】\n公司: 东方财富信息股份有限公司\n财年结束: 每年12月31日\n映射规则: FY结束于12月，与自然年一致，直接使用FY标签年份\n\n注意：以上映射基于财报日期自动判断。",
+    "date_mappings": {
+      "2025-12-31": 2025,
+      "2024-12-31": 2024,
+      "2023-12-31": 2023,
+      "2022-12-31": 2022
+    }
+  }
+}

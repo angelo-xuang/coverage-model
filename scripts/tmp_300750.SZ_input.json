@@ -1,0 +1,265 @@
+{
+  "model_type": "tam_standard",
+  "language": "zh-CN",
+  "currency_symbol": "¥",
+  "unit_suffix": "B",
+  "ticker": "300750.SZ",
+  "company_name": "宁德时代",
+  "hist_data": {
+    "2022A": {
+      "revenue": 328.59,
+      "revenue_growth": null,
+      "cogs": 262.05,
+      "gross_profit": 66.54,
+      "gross_margin": 0.2025,
+      "rd": 15.51,
+      "sga": 11.84,
+      "opex": 31.46,
+      "ebit": 35.09,
+      "ebit_margin": 0.1068,
+      "net_income": 30.73,
+      "net_margin": 0.0935
+    },
+    "2023A": {
+      "revenue": 400.92,
+      "revenue_growth": 0.2201,
+      "cogs": 323.98,
+      "gross_profit": 76.93,
+      "gross_margin": 0.1919,
+      "rd": 18.36,
+      "sga": 18.94,
+      "opex": 25.29,
+      "ebit": 51.65,
+      "ebit_margin": 0.1288,
+      "net_income": 44.12,
+      "net_margin": 0.1101
+    },
+    "2024A": {
+      "revenue": 362.01,
+      "revenue_growth": -0.097,
+      "cogs": 273.52,
+      "gross_profit": 88.49,
+      "gross_margin": 0.2444,
+      "rd": 18.61,
+      "sga": 4.95,
+      "opex": 23.95,
+      "ebit": 64.54,
+      "ebit_margin": 0.1783,
+      "net_income": 50.74,
+      "net_margin": 0.1402
+    },
+    "2025A": {
+      "revenue": 423.7,
+      "revenue_growth": 0.1704,
+      "cogs": 312.38,
+      "gross_profit": 111.32,
+      "gross_margin": 0.2627,
+      "rd": 22.15,
+      "sga": 5.12,
+      "opex": 29.78,
+      "ebit": 81.54,
+      "ebit_margin": 0.1924,
+      "net_income": 72.2,
+      "net_margin": 0.1704
+    }
+  },
+  "segment_history": {},
+  "val_data": {
+    "current_price": 434.05,
+    "current_pe": 24.7,
+    "forward_pe": 18.7,
+    "current_market_cap": 2008136286208.0,
+    "shares_outstanding": 4408208952,
+    "fifty_two_week_high": 468.75,
+    "fifty_two_week_low": 238.03
+  },
+  "pe_history": {
+    "2023A": {
+      "pe": 37.3,
+      "mkt_cap": 1645.7,
+      "price": 373.32
+    },
+    "2024A": {
+      "pe": 23.8,
+      "mkt_cap": 1207.6,
+      "price": 273.95
+    },
+    "2025A": {
+      "pe": 24.7,
+      "mkt_cap": 2008.14,
+      "price": 434.05
+    }
+  },
+  "assumptions": {
+    "bear": {
+      "tam_start": 1500,
+      "tam_cagr_1_3": 0.15,
+      "tam_cagr_4_6": 0.12,
+      "tam_cagr_7_10": 0.08,
+      "reachable_rate": 0.72,
+      "share_start": 0.37,
+      "share_end": 0.3,
+      "gm_start": 0.263,
+      "gm_end": 0.22,
+      "expense_start": 0.075,
+      "expense_end": 0.085,
+      "tax_rate": 0.22,
+      "pe_start": 22,
+      "pe_end": 16,
+      "shares_m": 4408
+    },
+    "base": {
+      "tam_start": 1500,
+      "tam_cagr_1_3": 0.18,
+      "tam_cagr_4_6": 0.15,
+      "tam_cagr_7_10": 0.12,
+      "reachable_rate": 0.75,
+      "share_start": 0.379,
+      "share_end": 0.35,
+      "gm_start": 0.263,
+      "gm_end": 0.25,
+      "expense_start": 0.07,
+      "expense_end": 0.075,
+      "tax_rate": 0.22,
+      "pe_start": 25,
+      "pe_end": 20,
+      "shares_m": 4408
+    },
+    "bull": {
+      "tam_start": 1500,
+      "tam_cagr_1_3": 0.22,
+      "tam_cagr_4_6": 0.18,
+      "tam_cagr_7_10": 0.14,
+      "reachable_rate": 0.78,
+      "share_start": 0.379,
+      "share_end": 0.4,
+      "gm_start": 0.263,
+      "gm_end": 0.27,
+      "expense_start": 0.065,
+      "expense_end": 0.065,
+      "tax_rate": 0.2,
+      "pe_start": 28,
+      "pe_end": 25,
+      "shares_m": 4408
+    }
+  },
+  "segments": [],
+  "company_assumptions": {},
+  "checks": {
+    "layer1": [
+      {
+        "name": "TAM校准 (Y0 TAM*Reachable*Share vs Actual Rev)",
+        "bear": "400B vs 423.7B",
+        "base": "426B vs 423.7B",
+        "bull": "443B vs 423.7B",
+        "status": "PASS (Base误差0.6%)"
+      },
+      {
+        "name": "毛利率区间合理性 (22-30%)",
+        "bear": "22.0% - 26.3%",
+        "base": "25.0% - 26.3%",
+        "bull": "26.3% - 27.0%",
+        "status": "PASS (历史22-27%区间内)"
+      },
+      {
+        "name": "费用率区间合理性",
+        "bear": "7.5% - 8.5%",
+        "base": "7.0% - 7.5%",
+        "bull": "6.5% - 6.5%",
+        "status": "PASS (历史5-10%区间内)"
+      },
+      {
+        "name": "PE区间合理性",
+        "bear": "16x - 22x",
+        "base": "20x - 25x",
+        "bull": "25x - 28x",
+        "status": "PASS (历史24-37x区间内)"
+      }
+    ],
+    "layer2": [
+      {
+        "name": "TAM CAGR: Bear < Base < Bull",
+        "bear": "15/12/8%",
+        "base": "18/15/12%",
+        "bull": "22/18/14%",
+        "status": "PASS"
+      },
+      {
+        "name": "终年市占率: Bear < Base < Bull",
+        "bear": "30%",
+        "base": "35%",
+        "bull": "40%",
+        "status": "PASS"
+      },
+      {
+        "name": "终年PE: Bear < Base < Bull",
+        "bear": "16x",
+        "base": "20x",
+        "bull": "25x",
+        "status": "PASS"
+      },
+      {
+        "name": "终年毛利率: Bear < Base <= Bull",
+        "bear": "22%",
+        "base": "25%",
+        "bull": "27%",
+        "status": "PASS"
+      }
+    ],
+    "layer3": [
+      {
+        "name": "全球电池市场CAGR (EVTank: ~20%)",
+        "bear": "15/12/8%",
+        "base": "18/15/12%",
+        "bull": "22/18/14%",
+        "status": "PASS (Base接近EVTank预测)"
+      },
+      {
+        "name": "宁德市占率趋势 (当前~38%)",
+        "bear": "38%->30%",
+        "base": "38%->35%",
+        "bull": "38%->40%",
+        "status": "PASS (BYD追赶下份额可能承压)"
+      },
+      {
+        "name": "行业PE参考 (A股新能源板块20-35x)",
+        "bear": "16-22x",
+        "base": "20-25x",
+        "bull": "25-28x",
+        "status": "PASS"
+      }
+    ]
+  },
+  "sources": {
+    "tam_start": "EVTank 2025年全球锂电池出货量2280GWh, 均价约0.66元/Wh, 对应约1500B CNY",
+    "tam_cagr_1_3": "EVTank预测全球锂电池CAGR约20%, Base取18%",
+    "tam_cagr_4_6": "增速放缓至15%, 参考EVTank 2030年预测6TWh",
+    "tam_cagr_7_10": "远期增速进一步放缓至12%",
+    "reachable_rate": "宁德覆盖动力电池+储能电池, 不含消费电子, 约70-78%",
+    "share_start": "SNE Research 2025上半年全球动力电池市占率37.9%",
+    "share_end": "比亚迪追赶+海外本地化, 市占率可能承压",
+    "gm_start": "2025年报毛利率26.3%",
+    "gm_end": "行业竞争加剧, 远期毛利率可能承压",
+    "expense_start": "2025年R&D 5.2% + SGA 1.2% 约6.4%, 取7%",
+    "expense_end": "规模效应下费用率稳定或微降",
+    "tax_rate": "高新技术企业税率15%+递延, 综合约20-22%",
+    "pe_start": "当前PE(TTM)约25x (Investing.com)",
+    "pe_end": "增速放缓PE回归至20x",
+    "shares_m": "总股本4408百万股 (yfinance)"
+  },
+  "fiscal_year_analysis": {
+    "fy_end_month": 12,
+    "fy_end_day": 31,
+    "fiscal_year_end": "12-??",
+    "mapping_rule": "FY结束于12月，与自然年一致，直接使用FY标签年份",
+    "is_calendar_year": true,
+    "natural_year_offset": 0,
+    "fiscal_year_note": "【财年定义】\n公司: Contemporary Amperex Technology Co., Limited\n财年结束: 每年12月\n映射规则: FY结束于12月，与自然年一致，直接使用FY标签年份\n\n【具体映射】\n  财报日期 2022-12-31 → 自然年 2022\n  财报日期 2023-12-31 → 自然年 2023\n  财报日期 2024-12-31 → 自然年 2024\n  财报日期 2025-12-31 → 自然年 2025\n\n注意：以上映射基于财报日期自动判断，如公司有特殊披露周期请手动核实。",
+    "date_mappings": {
+      "2025-12-31": 2025,
+      "2024-12-31": 2024,
+      "2023-12-31": 2023,
+      "2022-12-31": 2022
+    }
+  }
+}

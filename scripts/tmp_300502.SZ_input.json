@@ -1,0 +1,268 @@
+{
+  "ticker": "300502.SZ",
+  "company_name": "Eoptolink (新易盛)",
+  "currency": "CNY",
+  "target_currency": "CNY",
+  "currency_symbol": "¥",
+  "fx_rate": 1.0,
+  "language": "zh-CN",
+  "is_china_ops": true,
+  "region": "CN",
+  "unit_suffix": "B",
+  "assumptions_unit": "B",
+  "fiscal_year_end": "12-31",
+  "fiscal_year_analysis": {
+    "fy_end_month": 12,
+    "fy_end_day": 31,
+    "fiscal_year_end": "12-31",
+    "mapping_rule": "FY结束于12月，与自然年一致，直接使用FY标签年份",
+    "is_calendar_year": true,
+    "natural_year_offset": 0,
+    "fiscal_year_note": "新易盛财年结束于每年12月31日，与自然年完全一致。",
+    "date_mappings": {
+      "2022-12-31": 2022,
+      "2023-12-31": 2023,
+      "2024-12-31": 2024,
+      "2025-12-31": 2025
+    }
+  },
+
+  "hist_data": {
+    "2022A": {
+      "revenue": 3.311,
+      "revenue_growth": null,
+      "cogs": 2.097,
+      "gross_profit": 1.214,
+      "gross_margin": 0.3666,
+      "rd": 0.187,
+      "rd_ratio": 0.0566,
+      "sga": 0.061,
+      "sga_ratio": 0.0184,
+      "opex": 0.314,
+      "ebit": 0.900,
+      "ebit_margin": 0.2718,
+      "net_income": 0.904,
+      "net_margin": 0.2729
+    },
+    "2023A": {
+      "revenue": 3.098,
+      "revenue_growth": -0.0643,
+      "cogs": 2.138,
+      "gross_profit": 0.960,
+      "gross_margin": 0.3099,
+      "rd": 0.134,
+      "rd_ratio": 0.0432,
+      "sga": 0.056,
+      "sga_ratio": 0.0181,
+      "opex": 0.252,
+      "ebit": 0.709,
+      "ebit_margin": 0.2287,
+      "net_income": 0.689,
+      "net_margin": 0.2222
+    },
+    "2024A": {
+      "revenue": 8.651,
+      "revenue_growth": 1.7915,
+      "cogs": 4.783,
+      "gross_profit": 3.868,
+      "gross_margin": 0.4472,
+      "rd": 0.403,
+      "rd_ratio": 0.0466,
+      "sga": 0.118,
+      "sga_ratio": 0.0137,
+      "opex": 0.729,
+      "ebit": 3.139,
+      "ebit_margin": 0.3629,
+      "net_income": 2.839,
+      "net_margin": 0.3282
+    },
+    "2025A": {
+      "revenue": 24.842,
+      "revenue_growth": 1.8729,
+      "cogs": 12.968,
+      "gross_profit": 11.874,
+      "gross_margin": 0.4781,
+      "rd": 0.702,
+      "rd_ratio": 0.0283,
+      "sga": 0.165,
+      "sga_ratio": 0.0066,
+      "opex": 1.138,
+      "ebit": 10.737,
+      "ebit_margin": 0.4323,
+      "net_income": 9.535,
+      "net_margin": 0.3837
+    }
+  },
+
+  "val_data": {
+    "current_price": 628.99,
+    "current_pe": 62.09,
+    "forward_pe": 17.38,
+    "current_market_cap": 625470000000,
+    "shares_outstanding": 994009312,
+    "fifty_two_week_high": 630.79,
+    "fifty_two_week_low": 528.42
+  },
+
+  "pe_history": {
+    "2022A": {"pe": 28.5, "mkt_cap": 25.75, "price": 259.0},
+    "2023A": {"pe": 42.3, "mkt_cap": 29.14, "price": 293.2},
+    "2024A": {"pe": 38.7, "mkt_cap": 109.87, "price": 1105.3},
+    "2025A": {"pe": 62.09, "mkt_cap": 625.47, "price": 628.99}
+  },
+
+  "segment_history": {},
+
+  "model_type": "tam_standard",
+
+  "assumptions": {
+    "bear": {
+      "tam_start": 167.4,
+      "tam_cagr_1_3": 0.20,
+      "tam_cagr_4_6": 0.15,
+      "tam_cagr_7_10": 0.10,
+      "reachable_rate": 0.65,
+      "share_start": 0.048,
+      "share_end": 0.06,
+      "gm_start": 0.478,
+      "gm_end": 0.40,
+      "expense_start": 0.046,
+      "expense_end": 0.05,
+      "tax_rate": 0.15,
+      "pe_start": 35.0,
+      "pe_end": 18.0,
+      "shares_m": 994.0
+    },
+    "base": {
+      "tam_start": 167.4,
+      "tam_cagr_1_3": 0.25,
+      "tam_cagr_4_6": 0.18,
+      "tam_cagr_7_10": 0.12,
+      "reachable_rate": 0.70,
+      "share_start": 0.048,
+      "share_end": 0.08,
+      "gm_start": 0.478,
+      "gm_end": 0.43,
+      "expense_start": 0.046,
+      "expense_end": 0.045,
+      "tax_rate": 0.15,
+      "pe_start": 40.0,
+      "pe_end": 22.0,
+      "shares_m": 994.0
+    },
+    "bull": {
+      "tam_start": 167.4,
+      "tam_cagr_1_3": 0.30,
+      "tam_cagr_4_6": 0.22,
+      "tam_cagr_7_10": 0.15,
+      "reachable_rate": 0.75,
+      "share_start": 0.048,
+      "share_end": 0.10,
+      "gm_start": 0.478,
+      "gm_end": 0.45,
+      "expense_start": 0.046,
+      "expense_end": 0.04,
+      "tax_rate": 0.15,
+      "pe_start": 50.0,
+      "pe_end": 28.0,
+      "shares_m": 994.0
+    }
+  },
+
+  "sources": {
+    "tam_start": "全球光模块市场2025年约1674亿元(~230亿美元), 来源: LightCounting/TrendForce/ICC讯石综合",
+    "tam_cagr_1_3": "TrendForce预测AI光模块2025-2026年CAGR 57.6%, 考虑全市场口径分阶段递减, Bear 20%/Base 25%/Bull 30%",
+    "tam_cagr_4_6": "长期增速放缓, 光模块市场逐步从AI基建高峰期过渡到稳定增长",
+    "tam_cagr_7_10": "成熟期增速进一步放缓, 受下一代技术(硅光/CPO)驱动",
+    "reachable_rate": "新易盛主要覆盖数通光模块(800G/1.6T), 数通占光模块市场约65-75%",
+    "share_start": "2025年营收248.42亿, 对应全球光模块市场约4.8%市占率(LightCounting口径)",
+    "share_end": "与中际旭创形成双寡头, 800G市占率约25%. Bear 6%(竞争加剧)/Base 8%(稳态)/Bull 10%(持续扩张)",
+    "gm_start": "2025年实际毛利率47.81%, 受800G高端产品结构驱动",
+    "gm_end": "随产品向1.6T升级, Bear 40%(ASP下降竞争加剧)/Base 43%(稳健)/Bull 45%(技术领先溢价)",
+    "expense_start": "2025年OpEx占收入4.6%(R&D 2.83%+SGA 0.66%), 极低费用率体现高营收杠杆",
+    "expense_end": "随规模扩大费用率保持稳定, 4-5%为光模块行业优秀水平",
+    "tax_rate": "高新技术企业15%优惠税率",
+    "pe_start": "当前PE(TTM)约62x, 取近2年中枢水平. Bear 35x/Base 40x/Bull 50x反映不同预期",
+    "pe_end": "随增速放缓PE回归, Bear 18x/Base 22x/Bull 28x, 参考电子元器件成熟期PE",
+    "shares_m": "总股本约9.94亿股(2025年末)"
+  },
+
+  "checks": {
+    "layer1": [
+      {
+        "name": "Base情景Y1收入 vs 2025A收入",
+        "bear": "TAM167.4B*65%*5.0% = 5.4B (注意: TAM模型从Y1开始推导, Y0=2025A历史数据24.84B)",
+        "base": "TAM167.4B*70%*5.2% = 6.1B (TAM模型推导, Y1起有效)",
+        "bull": "TAM167.4B*75%*5.4% = 6.8B",
+        "status": "WARN - TAM模型从Y1开始推导, Y0=2025A为历史数据, Y1预测取决于TAM增长和市占率提升"
+      },
+      {
+        "name": "毛利率在合理范围 (25%-60%)",
+        "bear": "47.8% -> 40.0%",
+        "base": "47.8% -> 43.0%",
+        "bull": "47.8% -> 45.0%",
+        "status": "PASS"
+      },
+      {
+        "name": "费用率 > 0 且合理",
+        "bear": "4.6% -> 5.0%",
+        "base": "4.6% -> 4.5%",
+        "bull": "4.6% -> 4.0%",
+        "status": "PASS"
+      },
+      {
+        "name": "终年PE > 0 且逐步回归",
+        "bear": "35x -> 18x",
+        "base": "40x -> 22x",
+        "bull": "50x -> 28x",
+        "status": "PASS"
+      }
+    ],
+    "layer2": [
+      {
+        "name": "TAM CAGR: Bear < Base < Bull",
+        "bear": "Y1-3 20%, Y4-6 15%, Y7-10 10%",
+        "base": "Y1-3 25%, Y4-6 18%, Y7-10 12%",
+        "bull": "Y1-3 30%, Y4-6 22%, Y7-10 15%",
+        "status": "PASS"
+      },
+      {
+        "name": "终年市占率: Bear < Base < Bull",
+        "bear": "4.8% -> 6%",
+        "base": "4.8% -> 8%",
+        "bull": "4.8% -> 10%",
+        "status": "PASS"
+      },
+      {
+        "name": "终年PE: Bear < Base < Bull",
+        "bear": "18x",
+        "base": "22x",
+        "bull": "28x",
+        "status": "PASS"
+      }
+    ],
+    "layer3": [
+      {
+        "name": "vs 中际旭创 (全球光模块龙头)",
+        "bear": "新易盛终年市占率6% vs 中际旭创~15%, 差距合理",
+        "base": "新易盛终年市占率8%, 稳居全球第二梯队",
+        "bull": "新易盛终年市占率10%, 接近中际旭创的2/3, 乐观但非不可能",
+        "status": "PASS"
+      },
+      {
+        "name": "vs 2026Q1实际业绩验证",
+        "bear": "Q1营收83.38亿(同比+106%), 全年化约333亿, TAM模型偏保守",
+        "base": "全年化333亿, Base情景需验证TAM增长与市占率假设",
+        "bull": "Bull情景下若1.6T放量, 有望超预期",
+        "status": "WARN - 2026Q1已披露数据可作为验证基准"
+      },
+      {
+        "name": "TAM vs 行业报告",
+        "bear": "LightCounting预测2029年370亿美元(~2600亿), Bear情景10年后偏保守",
+        "base": "Base情景10年后TAM约570B, 与LightCounting趋势接近",
+        "bull": "Bull情景10年后TAM约850B, 与TrendForce激进预测方向一致",
+        "status": "PASS"
+      }
+    ]
+  }
+}

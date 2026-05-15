@@ -1,0 +1,35 @@
+正在拉取 688256.SH 的财务数据...
+  [1/2] yfinance 损益表...
+  [2/2] 计算利润率和增速...
+  [补充] SEC EDGAR 收入验证...
+{
+  "ticker": "688256.SH",
+  "company_name": "",
+  "currency": "USD",
+  "target_currency": "USD",
+  "currency_symbol": "$",
+  "fx_rate": 1.0,
+  "language": "en",
+  "is_china_ops": false,
+  "region": "US",
+  "fiscal_year_end": "",
+  "fiscal_year_analysis": {
+    "fy_end_month": 12,
+    "fy_end_day": 31,
+    "fiscal_year_end": "12-31",
+    "mapping_rule": "FY结束于12月，与自然年一致，直接使用FY标签年份",
+    "is_calendar_year": true,
+    "natural_year_offset": 0,
+    "fiscal_year_note": "【财年定义】\n公司: \n财年结束: 每年12月\n映射规则: FY结束于12月，与自然年一致，直接使用FY标签年份\n\n【具体映射】\n\n注意：以上映射基于财报日期自动判断，如公司有特殊披露周期请手动核实。",
+    "date_mappings": {}
+  },
+  "data": {},
+  "current_market_cap": null,
+  "current_pe": null,
+  "forward_pe": null,
+  "current_price": null,
+  "current_price_original": null,
+  "shares_outstanding": null,
+  "fifty_two_week_high": null,
+  "fifty_two_week_low": null
+}

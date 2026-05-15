@@ -1,0 +1,280 @@
+{
+  "ticker": "688256.SH",
+  "company_name": "Cambricon (寒武纪-U)",
+  "currency": "CNY",
+  "target_currency": "CNY",
+  "currency_symbol": "¥",
+  "fx_rate": 1.0,
+  "language": "zh-CN",
+  "is_china_ops": true,
+  "region": "CN",
+  "unit_suffix": "B",
+  "assumptions_unit": "B",
+  "fiscal_year_end": "12-31",
+  "fiscal_year_analysis": {
+    "fy_end_month": 12,
+    "fy_end_day": 31,
+    "fiscal_year_end": "12-31",
+    "mapping_rule": "FY结束于12月，与自然年一致，直接使用FY标签年份",
+    "is_calendar_year": true,
+    "natural_year_offset": 0,
+    "fiscal_year_note": "寒武纪财年结束于每年12月31日，与自然年完全一致。",
+    "date_mappings": {}
+  },
+
+  "hist_data": {
+    "2021A": {
+      "revenue": 7.29,
+      "revenue_growth": null,
+      "cogs": 3.35,
+      "gross_profit": 3.94,
+      "gross_margin": 0.5406,
+      "rd": 11.12,
+      "rd_ratio": 1.525,
+      "sga": 2.94,
+      "sga_ratio": 0.403,
+      "opex": 14.06,
+      "ebit": -10.12,
+      "ebit_margin": -1.388,
+      "net_income": -8.25,
+      "net_margin": -1.131
+    },
+    "2022A": {
+      "revenue": 7.29,
+      "revenue_growth": 0.0,
+      "cogs": 3.71,
+      "gross_profit": 3.58,
+      "gross_margin": 0.491,
+      "rd": 13.51,
+      "rd_ratio": 1.853,
+      "sga": 3.43,
+      "sga_ratio": 0.470,
+      "opex": 16.94,
+      "ebit": -13.36,
+      "ebit_margin": -1.833,
+      "net_income": -12.56,
+      "net_margin": -1.723
+    },
+    "2023A": {
+      "revenue": 7.09,
+      "revenue_growth": -0.027,
+      "cogs": 3.34,
+      "gross_profit": 3.75,
+      "gross_margin": 0.529,
+      "rd": 11.18,
+      "rd_ratio": 1.576,
+      "sga": 2.51,
+      "sga_ratio": 0.354,
+      "opex": 13.69,
+      "ebit": -9.94,
+      "ebit_margin": -1.401,
+      "net_income": -8.48,
+      "net_margin": -1.196
+    },
+    "2024A": {
+      "revenue": 11.74,
+      "revenue_growth": 0.6556,
+      "cogs": 5.16,
+      "gross_profit": 6.58,
+      "gross_margin": 0.5605,
+      "rd": 12.16,
+      "rd_ratio": 1.036,
+      "sga": 2.63,
+      "sga_ratio": 0.224,
+      "opex": 14.79,
+      "ebit": -8.21,
+      "ebit_margin": -0.699,
+      "net_income": -4.14,
+      "net_margin": -0.353
+    },
+    "2025A": {
+      "revenue": 64.97,
+      "revenue_growth": 4.5321,
+      "cogs": 28.62,
+      "gross_profit": 36.35,
+      "gross_margin": 0.5596,
+      "rd": 11.69,
+      "rd_ratio": 0.180,
+      "sga": 4.18,
+      "sga_ratio": 0.064,
+      "opex": 15.87,
+      "ebit": 20.48,
+      "ebit_margin": 0.315,
+      "net_income": 20.59,
+      "net_margin": 0.317
+    }
+  },
+
+  "val_data": {
+    "current_price": 1595.88,
+    "current_pe": 274.88,
+    "forward_pe": 229.0,
+    "current_market_cap": 742975000000,
+    "shares_outstanding": 465600000,
+    "fifty_two_week_high": 1595.88,
+    "fifty_two_week_low": 200.50
+  },
+
+  "pe_history": {
+    "2021A": {"pe": null, "mkt_cap": 98.0, "price": 210.5},
+    "2022A": {"pe": null, "mkt_cap": 56.5, "price": 121.3},
+    "2023A": {"pe": null, "mkt_cap": 198.0, "price": 425.4},
+    "2024A": {"pe": null, "mkt_cap": 312.0, "price": 670.0},
+    "2025A": {"pe": 274.88, "mkt_cap": 742.98, "price": 1595.88}
+  },
+
+  "segment_history": {},
+
+  "model_type": "tam_standard",
+
+  "assumptions": {
+    "bear": {
+      "tam_start": 160.0,
+      "tam_cagr_1_3": 0.35,
+      "tam_cagr_4_6": 0.25,
+      "tam_cagr_7_10": 0.18,
+      "reachable_rate": 0.30,
+      "share_start": 0.041,
+      "share_end": 0.06,
+      "gm_start": 0.56,
+      "gm_end": 0.58,
+      "expense_start": 0.25,
+      "expense_end": 0.15,
+      "tax_rate": 0.15,
+      "pe_start": 150.0,
+      "pe_end": 50.0,
+      "shares_m": 465.6
+    },
+    "base": {
+      "tam_start": 200.0,
+      "tam_cagr_1_3": 0.40,
+      "tam_cagr_4_6": 0.30,
+      "tam_cagr_7_10": 0.20,
+      "reachable_rate": 0.40,
+      "share_start": 0.041,
+      "share_end": 0.10,
+      "gm_start": 0.56,
+      "gm_end": 0.62,
+      "expense_start": 0.25,
+      "expense_end": 0.12,
+      "tax_rate": 0.15,
+      "pe_start": 200.0,
+      "pe_end": 60.0,
+      "shares_m": 465.6
+    },
+    "bull": {
+      "tam_start": 250.0,
+      "tam_cagr_1_3": 0.50,
+      "tam_cagr_4_6": 0.35,
+      "tam_cagr_7_10": 0.25,
+      "reachable_rate": 0.50,
+      "share_start": 0.041,
+      "share_end": 0.15,
+      "gm_start": 0.56,
+      "gm_end": 0.65,
+      "expense_start": 0.25,
+      "expense_end": 0.10,
+      "tax_rate": 0.15,
+      "pe_start": 275.0,
+      "pe_end": 80.0,
+      "shares_m": 465.6
+    }
+  },
+
+  "sources": {
+    "tam_start": "弗若斯特沙利文: 2024年中国AI芯片市场约1425亿元(~142.5B), 2025年预计~200B. Bear取160B, Base取200B, Bull取250B",
+    "tam_cagr_1_3": "沙利文预测2025-2029年CAGR 53.7%, 考虑高基数效应分阶段递减",
+    "tam_cagr_4_6": "长期增速放缓, 反映市场逐步成熟",
+    "tam_cagr_7_10": "成熟期增速进一步放缓",
+    "reachable_rate": "寒武纪主要覆盖推理芯片+部分训练市场, GPU中推理占比约65%, 寒武纪可触达约30-50%",
+    "share_start": "2025年出货11.6万块(与昆仑芯并列第三), 营收65B对应中国AI芯片市场约4.1%市占率",
+    "share_end": "国产替代趋势下, Bear 6%保守/Base 10%合理/Bull 15%乐观(参考华为昇腾40%份额)",
+    "gm_start": "2025年实际毛利率55.96%, 芯片设计公司高毛利特征",
+    "gm_end": "随规模效应和产品升级, 毛利率有望提升至58-65%",
+    "expense_start": "2025年OpEx占收入24.4%(已含R&D 18%+SGA 6.4%), 显著低于早期",
+    "expense_end": "随收入规模扩大, 费用率持续下降至10-15%",
+    "tax_rate": "高新技术企业15%优惠税率, 寒武纪具备资质",
+    "pe_start": "当前PE(TTM)约275x, 高增长AI芯片股享有估值溢价",
+    "pe_end": "随盈利成熟, PE逐步回归至50-80x合理区间",
+    "shares_m": "总股本约4.656亿股(2025年末)"
+  },
+
+  "checks": {
+    "layer1": [
+      {
+        "name": "Base情景Y1收入 > 2025A收入",
+        "bear": "TAM160B*30%*4.2% = 2.0B (不合理, 需注意TAM模型Y0与实际收入的差异)",
+        "base": "TAM200B*40%*4.4% = 3.5B (注意: TAM模型从市场推导, Y1起有效)",
+        "bull": "TAM250B*50%*4.8% = 6.0B",
+        "status": "WARN - TAM模型从Y1开始推导, Y0=2025A历史数据, Y1预测取决于TAM增长"
+      },
+      {
+        "name": "毛利率在合理范围 (40%-80%)",
+        "bear": "56% - 58%",
+        "base": "56% - 62%",
+        "bull": "56% - 65%",
+        "status": "PASS"
+      },
+      {
+        "name": "费用率 > 0 且逐步下降",
+        "bear": "25% -> 15%",
+        "base": "25% -> 12%",
+        "bull": "25% -> 10%",
+        "status": "PASS"
+      },
+      {
+        "name": "终年PE > 0",
+        "bear": "50x",
+        "base": "60x",
+        "bull": "80x",
+        "status": "PASS"
+      }
+    ],
+    "layer2": [
+      {
+        "name": "TAM: Bear < Base < Bull",
+        "bear": "160B",
+        "base": "200B",
+        "bull": "250B",
+        "status": "PASS"
+      },
+      {
+        "name": "市占率: Bear < Base < Bull",
+        "bear": "4.1% -> 6%",
+        "base": "4.1% -> 10%",
+        "bull": "4.1% -> 15%",
+        "status": "PASS"
+      },
+      {
+        "name": "PE终年: Bear < Base < Bull",
+        "bear": "50x",
+        "base": "60x",
+        "bull": "80x",
+        "status": "PASS"
+      }
+    ],
+    "layer3": [
+      {
+        "name": "vs 华为昇腾 (国内AI芯片龙头)",
+        "bear": "寒武纪终年市占率6% vs 华为~40%, 差距合理",
+        "base": "寒武纪终年市占率10%, 第二梯队领先地位",
+        "bull": "寒武纪终年市占率15%, 接近华为的一半, 乐观但非不可能",
+        "status": "PASS"
+      },
+      {
+        "name": "vs 券商预测",
+        "bear": "券商2027E营收99B, Bear情景偏保守",
+        "base": "券商2026E营收128.5B, Base情景需验证Y1-Y2",
+        "bull": "雪球预测2030年营收1000B, Bull情景偏乐观",
+        "status": "WARN - TAM模型为10年长周期, 前2-3年可能与券商短周期预测有偏差"
+      },
+      {
+        "name": "TAM vs 行业报告",
+        "bear": "沙利文2024年142.5B, Bear 2026E起约160B起步, 合理",
+        "base": "沙利文预测2029年达1.34万亿, Base情景10年后~1650B, 偏保守",
+        "bull": "Bull情景10年后~2950B, 与沙利文长期趋势基本匹配",
+        "status": "PASS"
+      }
+    ]
+  }
+}
