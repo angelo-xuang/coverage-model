@@ -1,0 +1,245 @@
+{
+  "hist_data": {
+    "2021A": {
+      "revenue": 257637
+    },
+    "2022A": {
+      "revenue": 282836,
+      "cogs": 126203,
+      "gross_profit": 156633,
+      "rd": 39500,
+      "sga": 26598,
+      "ebit": 74988,
+      "net_income": 59972,
+      "gross_margin": 0.5538,
+      "ebit_margin": 0.2651,
+      "net_margin": 0.212,
+      "rd_ratio": 0.1397,
+      "sga_ratio": 0.094
+    },
+    "2023A": {
+      "revenue": 307394,
+      "cogs": 133452,
+      "gross_profit": 173942,
+      "rd": 45364,
+      "sga": 24870,
+      "ebit": 84233,
+      "net_income": 73795,
+      "gross_margin": 0.5658,
+      "ebit_margin": 0.274,
+      "net_margin": 0.2401,
+      "rd_ratio": 0.1476,
+      "sga_ratio": 0.0809,
+      "revenue_growth": 0.0868
+    },
+    "2024A": {
+      "revenue": 350018,
+      "cogs": 146318,
+      "gross_profit": 203700,
+      "rd": 45427,
+      "sga": 28400,
+      "ebit": 112230,
+      "net_income": 100118,
+      "gross_margin": 0.5819,
+      "ebit_margin": 0.3206,
+      "net_margin": 0.286,
+      "rd_ratio": 0.1298,
+      "sga_ratio": 0.0811,
+      "revenue_growth": 0.1387
+    },
+    "2025A": {
+      "revenue": 402779,
+      "cogs": 162322,
+      "gross_profit": 240457,
+      "rd": 49600,
+      "sga": 29500,
+      "ebit": 128940,
+      "net_income": 132190,
+      "gross_margin": 0.5969,
+      "ebit_margin": 0.32,
+      "net_margin": 0.3282,
+      "rd_ratio": 0.1231,
+      "sga_ratio": 0.0732,
+      "revenue_growth": 0.1507
+    }
+  },
+  "val_data": {
+    "current_market_cap": 4692900000000,
+    "current_price": 387.35,
+    "current_pe": 29.6,
+    "forward_pe": 26.8,
+    "shares_outstanding": 5824000000,
+    "fifty_two_week_high": 402.0,
+    "fifty_two_week_low": 159.61
+  },
+  "assumptions": {
+    "bear": {
+      "tam_start": 3000.0,
+      "tam_cagr_1_3": 0.09,
+      "tam_cagr_4_6": 0.06,
+      "tam_cagr_7_10": 0.04,
+      "reachable_rate": 0.4,
+      "share_start": 0.336,
+      "share_end": 0.31,
+      "gm_start": 0.597,
+      "gm_end": 0.58,
+      "expense_start": 0.277,
+      "expense_end": 0.29,
+      "tax_rate": 0.17,
+      "target_pe": 22,
+      "shares_m": 5824
+    },
+    "base": {
+      "tam_start": 3000.0,
+      "tam_cagr_1_3": 0.14,
+      "tam_cagr_4_6": 0.1,
+      "tam_cagr_7_10": 0.06,
+      "reachable_rate": 0.4,
+      "share_start": 0.336,
+      "share_end": 0.34,
+      "gm_start": 0.597,
+      "gm_end": 0.615,
+      "expense_start": 0.277,
+      "expense_end": 0.26,
+      "tax_rate": 0.15,
+      "target_pe": 27,
+      "shares_m": 5824
+    },
+    "bull": {
+      "tam_start": 3000.0,
+      "tam_cagr_1_3": 0.2,
+      "tam_cagr_4_6": 0.14,
+      "tam_cagr_7_10": 0.09,
+      "reachable_rate": 0.4,
+      "share_start": 0.336,
+      "share_end": 0.38,
+      "gm_start": 0.597,
+      "gm_end": 0.64,
+      "expense_start": 0.277,
+      "expense_end": 0.245,
+      "tax_rate": 0.14,
+      "target_pe": 33,
+      "shares_m": 5824
+    }
+  },
+  "checks": [
+    {
+      "name": "[BEAR] 收入增速衰减",
+      "bear": "✓",
+      "base": "",
+      "bull": "",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BEAR] 毛利率范围",
+      "bear": "✓",
+      "base": "",
+      "bull": "",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BEAR] EBIT margin 合理",
+      "bear": "✓",
+      "base": "",
+      "bull": "",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BASE] 收入增速衰减",
+      "bear": "",
+      "base": "✓",
+      "bull": "",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BASE] 毛利率范围",
+      "bear": "",
+      "base": "✓",
+      "bull": "",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BASE] EBIT margin 合理",
+      "bear": "",
+      "base": "✓",
+      "bull": "",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BULL] 收入增速衰减",
+      "bear": "",
+      "base": "",
+      "bull": "✓",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BULL] 毛利率范围",
+      "bear": "",
+      "base": "",
+      "bull": "✓",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "[BULL] EBIT margin 合理",
+      "bear": "",
+      "base": "",
+      "bull": "✓",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "终年收入排序 Bull>Base>Bear",
+      "bear": "$671B",
+      "base": "$1016B",
+      "bull": "$1648B",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "终年净利排序 Bull>Base>Bear",
+      "bear": "$162B",
+      "base": "$306B",
+      "bull": "$560B",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "情景差距合理性 (B/B=133%, Bu/B=123%)",
+      "bear": "",
+      "base": "",
+      "bull": "",
+      "status": "✓ 通过"
+    },
+    {
+      "name": "Base CAGR (9.7%) vs MSFT历史 (~12%)",
+      "bear": "",
+      "base": "9.7%",
+      "bull": "",
+      "status": "✓ 合理"
+    }
+  ],
+  "sources": {
+    "tam_start": "基于Gartner 2025全球IT支出预测(~$5T) × 数字化服务渗透率，取$3T作为GOOGL可参与市场",
+    "tam_cagr_1_3": "基于IDC/Gartner对AI和云计算支出的增速预测(15-25%)，Bear取低、Bull取高",
+    "tam_cagr_4_6": "增速衰减假设：参考S曲线，渗透率10%-50%阶段增速自然下降",
+    "tam_cagr_7_10": "长期增速向GDP+通胀回归(3-6%)，参考Cisco/AWS历史增速衰减轨迹",
+    "reachable_rate": "40%：基于GOOGL业务覆盖（搜索+Cloud+YouTube+Android）占全球数字支出的比例",
+    "share_start": "33.6%：基于2025A实际收入/$3T SAM计算",
+    "share_end": "Bear 31%: 搜索被AI蚕食>Cloud增量; Base 34%: 基本持平; Bull 38%: Cloud+AI持续抢份额",
+    "gm_start": "59.7%：2025A实际毛利率",
+    "gm_end": "Bear 58%: AI CapEx折旧压制; Base 61.5%: 每5年+1.8pp(参考2019-2025轨迹); Bull 64%: AI效率提升",
+    "expense_start": "27.7%：2025A实际费用率(RD+SGA占收入比)",
+    "expense_end": "Bear 29%: 竞争加剧需更多投入; Base 26%: 规模效应-1.7pp; Bull 24.5%: AI自动化降本",
+    "tax_rate": "基于GOOGL历史有效税率14-17%，Bear取高、Bull取低",
+    "target_pe": "Bear 22x: 向历史中位PE回归; Base 27x: 接近当前PE; Bull 33x: AI溢价维持",
+    "shares_m": "5824M：基于yfinance当前流通股数"
+  },
+  "language": "en",
+  "currency_symbol": "$",
+  "unit_suffix": "M",
+  "fiscal_year_analysis": {
+    "fy_end_month": 12,
+    "fiscal_year_end": "12-31",
+    "is_calendar_year": true,
+    "mapping_rule": "FY ends in December, aligned with calendar year",
+    "date_mappings": {},
+    "fiscal_year_note": "Google fiscal year ends December 31, aligned with calendar year. No mapping needed."
+  }
+}

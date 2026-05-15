@@ -324,6 +324,9 @@ def build_assumptions(ws, assumptions, labels, ccy_sym='$', unit_suffix='B', sou
     dv.add(ws["B1"])
 
     # (label, key, fmt, label_key_for_sources)
+    # 用 has_seg 检测是否有多分部参数
+    has_seg = any(assumptions.get('base', {}).get(k) for k in
+                  ['gaming_rev', 'proviz_rev', 'auto_rev', 'oem_rev'])
     assumption_rows = [
         (f"--- {labels['section_revenue']} ---", None, None, None),
         (f"{labels['tam_start']} ({ccy_sym}{unit_suffix})", "tam_start", '#,##0.0', 'tam_start'),
@@ -333,6 +336,28 @@ def build_assumptions(ws, assumptions, labels, ccy_sym='$', unit_suffix='B', sou
         (labels['reachable'], "reachable_rate", '0.0%', 'reachable_rate'),
         (labels['share_start'], "share_start", '0.0%', 'share_start'),
         (labels['share_end'], "share_end", '0.0%', 'share_end'),
+    ]
+    if has_seg:
+        assumption_rows += [
+            (f"--- {labels.get('section_gaming', 'Gaming')} ---", None, None, None),
+            (f"Gaming 起始收入 ({ccy_sym}{unit_suffix})", "gaming_rev", '#,##0.0', 'gaming_rev'),
+            ("Gaming CAGR Y1-Y3", "gaming_cagr_1_3", '0.0%', 'gaming_cagr_1_3'),
+            ("Gaming CAGR Y4-Y6", "gaming_cagr_4_6", '0.0%', 'gaming_cagr_4_6'),
+            ("Gaming CAGR Y7-Y10", "gaming_cagr_7_10", '0.0%', 'gaming_cagr_7_10'),
+            (f"--- {labels.get('section_proviz', 'ProViz')} ---", None, None, None),
+            (f"ProViz 起始收入 ({ccy_sym}{unit_suffix})", "proviz_rev", '#,##0.0', 'proviz_rev'),
+            ("ProViz CAGR Y1-Y3", "proviz_cagr_1_3", '0.0%', 'proviz_cagr_1_3'),
+            ("ProViz CAGR Y4-Y6", "proviz_cagr_4_6", '0.0%', 'proviz_cagr_4_6'),
+            ("ProViz CAGR Y7-Y10", "proviz_cagr_7_10", '0.0%', 'proviz_cagr_7_10'),
+            (f"--- {labels.get('section_auto', 'Auto')} ---", None, None, None),
+            (f"Auto 起始收入 ({ccy_sym}{unit_suffix})", "auto_rev", '#,##0.0', 'auto_rev'),
+            ("Auto CAGR Y1-Y3", "auto_cagr_1_3", '0.0%', 'auto_cagr_1_3'),
+            ("Auto CAGR Y4-Y6", "auto_cagr_4_6", '0.0%', 'auto_cagr_4_6'),
+            ("Auto CAGR Y7-Y10", "auto_cagr_7_10", '0.0%', 'auto_cagr_7_10'),
+            (f"--- {labels.get('section_oem', 'OEM')} ---", None, None, None),
+            (f"OEM 收入 ({ccy_sym}{unit_suffix})", "oem_rev", '#,##0.0', 'oem_rev'),
+        ]
+    assumption_rows += [
         (f"--- {labels['section_margin']} ---", None, None, None),
         (labels['gm_start'], "gm_start", '0.0%', 'gm_start'),
         (labels['gm_end'], "gm_end", '0.0%', 'gm_end'),
@@ -340,7 +365,8 @@ def build_assumptions(ws, assumptions, labels, ccy_sym='$', unit_suffix='B', sou
         (labels['exp_end'], "expense_end", '0.0%', 'expense_end'),
         (labels['tax_rate'], "tax_rate", '0.0%', 'tax_rate'),
         (f"--- {labels['section_valuation']} ---", None, None, None),
-        (labels['target_pe'], "target_pe", '0.0', 'target_pe'),
+        (f"{labels['target_pe']} 起始", "pe_start", '0.0', 'pe_start'),
+        (f"{labels['target_pe']} 终年", "pe_end", '0.0', 'pe_end'),
         (f"{labels['shares_m']} (M)", "shares_m", '#,##0', 'shares_m'),
     ]
 
@@ -394,237 +420,767 @@ def build_assumptions(ws, assumptions, labels, ccy_sym='$', unit_suffix='B', sou
 
 def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
                        unit_suffix='B', projection_years=10, current_price=None):
+    """预测工作表 — 参数行[绿]嵌入计算链，首列=最新实际年[B列/蓝]
+
+    布局: 参数[绿]在上 → 计算[黑]在下，绿色=跨表引用假设sheet F列
+    行号严格递增(2-56)，无重叠
+    """
     ws.title = labels['sheet_forecast']
-
-    VAL_CURRENT_PRICE = current_price or 100
-
+    VAL = current_price or 100
+    sn = labels['sheet_assumptions']
+    N = projection_years
     hist_years = sorted(hist_data.keys())
-    last_hist_year = int(hist_years[-1].replace('A', '')) if hist_years else 2025
-    proj_years = [f"{last_hist_year + i + 1}E" for i in range(projection_years)]
+    ly_str = hist_years[-1] if hist_years else '2025A'
+    ly = int(ly_str.replace('A', ''))
+    yrs = [ly_str] + [f"{ly + i + 1}E" for i in range(N)]
+    TC = len(yrs)  # = 1 历史 + N 预测 = 11
 
     ws.cell(row=1, column=1, value=labels['label_metric'])
-    for i, y in enumerate(proj_years):
+    for i, y in enumerate(yrs):
         ws.cell(row=1, column=i + 2, value=y)
-    style_header_row(ws, 1, 1, len(proj_years) + 1)
-    style_header_row(ws, 1, 2, len(proj_years) + 1, fill=COL_HEADER_FILL, font=BLACK_BOLD)
+    style_header_row(ws, 1, 1, TC + 1)
+    style_header_row(ws, 1, 2, TC + 1, fill=COL_HEADER_FILL, font=BLACK_BOLD)
 
-    ASSUMPTION_ROWS = {
-        'tam_start': 4, 'tam_cagr_1_3': 5, 'tam_cagr_4_6': 6, 'tam_cagr_7_10': 7,
-        'reachable_rate': 8, 'share_start': 9, 'share_end': 10,
-        'gm_start': 12, 'gm_end': 13, 'expense_start': 14, 'expense_end': 15,
-        'tax_rate': 16, 'target_pe': 18, 'shares_m': 19,
+    hist = hist_data.get(ly_str, {})
+    h_rev = hist.get('revenue', 0)
+    h_rev_B = h_rev / 1000 if h_rev > 1e6 else h_rev
+    h_gm = hist.get('gross_margin', 0)
+    h_gr = hist.get('revenue_growth', 0)
+    h_ni = hist.get('net_income', 0)
+    h_ni_B = h_ni / 1000 if h_ni > 1e6 else h_ni
+
+    # 检测是否有分部参数 (Gaming等)
+    base_asm = assumptions.get('base', {})
+    has_seg = any(base_asm.get(k) for k in
+                  ['gaming_rev', 'proviz_rev', 'auto_rev', 'oem_rev'])
+
+    # 动态计算假设行号: DC(3-10) → [segments] → Margin → Valuation
+    _r = 4
+    AR = {'tam_start': _r, 'tam_cagr_1_3': _r+1, 'tam_cagr_4_6': _r+2, 'tam_cagr_7_10': _r+3}
+    _r += 4  # 8
+    AR['reachable_rate'] = _r; AR['share_start'] = _r+1; AR['share_end'] = _r+2
+    _r = _r + 4  # 12 (or more if segments)
+    if has_seg:
+        for seg in ['gaming', 'proviz', 'auto']:
+            AR[f'{seg}_rev'] = _r; _r += 1
+            AR[f'{seg}_cagr_1_3'] = _r; _r += 1
+            AR[f'{seg}_cagr_4_6'] = _r; _r += 1
+            AR[f'{seg}_cagr_7_10'] = _r; _r += 1
+        AR['oem_rev'] = _r; _r += 1
+    AR['gm_start'] = _r; AR['gm_end'] = _r+1
+    AR['expense_start'] = _r+2; AR['expense_end'] = _r+3
+    AR['tax_rate'] = _r+4
+    _r += 6
+    AR['pe_start'] = _r; AR['pe_end'] = _r+1
+    AR['shares_m'] = _r+2
+
+    def asum(k):
+        return f"'{sn}'!$F${AR[k]}"
+
+    def G(r, label, key, fmt='0.0%'):
+        """绿色参数行"""
+        ws.cell(row=r, column=1, value=label)
+        ws.cell(row=r, column=1).font = BLACK_BOLD; ws.cell(row=r, column=1).border = THIN_BORDER
+        for i in range(TC):
+            ws.cell(row=r, column=i + 2, value=f"={asum(key)}")
+            style_data_cell(ws, r, i + 2, font=GREEN_FONT, num_fmt=fmt)
+
+    def S(r, label):
+        """节标题"""
+        ws.cell(row=r, column=1, value=f"--- {label} ---")
+        ws.cell(row=r, column=1).font = WHITE_BOLD
+        ws.cell(row=r, column=1).fill = HEADER_FILL
+        for c in range(2, TC + 2):
+            ws.cell(row=r, column=c).fill = HEADER_FILL
+
+    def L(r, text):
+        """黑体标签"""
+        ws.cell(row=r, column=1, value=text)
+        ws.cell(row=r, column=1).font = BLACK_BOLD; ws.cell(row=r, column=1).border = THIN_BORDER
+
+    def B(r, col, val, fmt='#,##0.0'):
+        """蓝底历史值"""
+        if val is not None:
+            ws.cell(row=r, column=col, value=val)
+        style_data_cell(ws, r, col, font=BLUE_FONT, fill=INPUT_FILL, num_fmt=fmt)
+
+    def O(r, col, formula, fmt='#,##0.0'):
+        """黑字输出(蓝底)"""
+        ws.cell(row=r, column=col, value=formula)
+        style_data_cell(ws, r, col, font=BLACK_FONT, fill=OUTPUT_FILL, num_fmt=fmt)
+
+    def K(r, col, formula, fmt='#,##0.0'):
+        """黑字计算(无底)"""
+        ws.cell(row=r, column=col, value=formula)
+        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt=fmt)
+
+    # ============================================
+    # 行号 2-13: 收入推导 (DC TAM模型)
+    # ============================================
+    S(2, labels['section_rev_forecast'])
+    G(3, f"TAM起始 ({ccy_sym}{unit_suffix})", 'tam_start', '#,##0.0')
+    G(4, "TAM CAGR Y1-Y3", 'tam_cagr_1_3')
+    G(5, "TAM CAGR Y4-Y6", 'tam_cagr_4_6')
+    G(6, "TAM CAGR Y7-Y10", 'tam_cagr_7_10')
+
+    L(7, f"TAM ({ccy_sym}{unit_suffix})")
+    B(7, 2, f"={asum('tam_start')}", '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        r_cagr = 4 if i <= 3 else (5 if i <= 6 else 6)
+        if i == 1:
+            K(7, col, f"={c}3*(1+{c}{r_cagr})")
+        else:
+            pc = get_column_letter(col - 1)
+            K(7, col, f"={pc}7*(1+{c}{r_cagr})")
+
+    G(8, labels['reachable'], 'reachable_rate')
+
+    L(9, f"{labels['sam']} ({ccy_sym}{unit_suffix})")
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(9, col, f"={c}7*{c}8")
+
+    G(10, labels['share_start'], 'share_start')
+    G(11, labels['share_end'], 'share_end')
+
+    L(12, labels['market_share'])
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(12, col, f"={c}10" if i == 0 else f"={c}10+({c}11-{c}10)*{i}/{N}", '0.0%')
+
+    L(13, f"DC 收入 ({ccy_sym}{unit_suffix})")
+    B(13, 2, h_rev_B, '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        O(13, col, f"={c}9*{c}12")
+
+    # ============================================
+    # 分部收入 (仅 has_seg 时渲染) + 总收入
+    # ============================================
+    _r = 14  # 当前渲染行
+    seg_rows = {}  # 记录每个分部的收入行号用于汇总
+    if has_seg:
+        for seg, seg_label in [('gaming', 'Gaming'), ('proviz', 'ProViz'),
+                                ('auto', 'Auto')]:
+            S(_r, labels.get(f'section_{seg.lower()}', seg_label)); _r += 1
+            G(_r, f"{seg_label} 起始 ({ccy_sym}{unit_suffix})", f'{seg}_rev', '#,##0.0'); _r += 1
+            G(_r, f"{seg_label} CAGR Y1-Y3", f'{seg}_cagr_1_3'); _r += 1
+            G(_r, f"{seg_label} CAGR Y4-Y6", f'{seg}_cagr_4_6'); _r += 1
+            G(_r, f"{seg_label} CAGR Y7-Y10", f'{seg}_cagr_7_10'); _r += 1
+            r_rev = _r
+            L(_r, f"{seg_label} 收入 ({ccy_sym}{unit_suffix})"); _r += 1
+            seg_rows[seg] = r_rev
+            for i in range(1, N + 1):
+                col = i + 1; c = get_column_letter(col); pc = get_column_letter(col - 1)
+                r_cagr = r_rev - 3 if i <= 3 else (r_rev - 2 if i <= 6 else r_rev - 1)
+                K(r_rev, col,
+                  f"={c}{r_rev-4}*(1+{c}{r_cagr})" if i == 1 else f"={pc}{r_rev}*(1+{c}{r_cagr})")
+
+        # OEM
+        S(_r, labels.get('section_oem', 'OEM')); _r += 1
+        r_oem = _r
+        L(_r, f"OEM 收入 ({ccy_sym}{unit_suffix})"); _r += 1
+        for i in range(1, N + 1):
+            col = i + 1
+            ws.cell(row=r_oem, column=col, value=f"={asum('oem_rev')}")
+            style_data_cell(ws, r_oem, col, font=GREEN_FONT, num_fmt='#,##0.0')
+
+    # 总收入 (r_rev_total)
+    S(_r, labels.get('total_revenue', 'Total Revenue')); _r += 1
+    r_total = _r
+    L(_r, f"{labels.get('total_revenue', 'Total')} ({ccy_sym}{unit_suffix})"); _r += 1
+    B(r_total, 2, h_rev_B, '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        if has_seg:
+            parts = '+'.join(f"{c}{seg_rows[s]}" for s in ['gaming', 'proviz', 'auto'] + ['oem'] if s in seg_rows)
+            # OEM row
+            parts = f"{c}13+" + '+'.join(f"{c}{seg_rows[s]}" for s in ['gaming', 'proviz', 'auto'])
+            parts += f"+{c}{r_oem}"
+            O(r_total, col, parts)
+        else:
+            O(r_total, col, f"={c}13")
+
+    r_growth = _r
+    L(_r, f"总收入 增速"); _r += 1
+    B(r_growth, 2, h_gr, '0.0%')
+    c3 = get_column_letter(2)
+    if h_rev_B:
+        K(r_growth, 2, f"=({c3}{r_total}-{h_rev_B})/{h_rev_B}", '0.0%')
+    for i in range(2, N + 1):
+        col = i + 1; c = get_column_letter(col); pc = get_column_letter(col - 1)
+        K(r_growth, col, f"=({c}{r_total}-{pc}{r_total})/{pc}{r_total}", '0.0%')
+
+    # ============================================
+    # 利润推导
+    # ============================================
+    S(_r, labels['section_profit_forecast']); _r += 1
+    r_gm_start = _r; G(_r, labels['gm_start'], 'gm_start'); _r += 1
+    r_gm_end = _r; G(_r, labels['gm_end'], 'gm_end'); _r += 1
+
+    r_gm = _r; L(_r, labels['fc_gm']); _r += 1
+    B(r_gm, 2, h_gm, '0.0%')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_gm, col, f"={c}{r_gm_start}+({c}{r_gm_end}-{c}{r_gm_start})*{i - 1}/{N - 1}", '0.0%')
+
+    r_gp = _r; L(_r, f"{labels['fc_gross_profit']} ({ccy_sym}{unit_suffix})"); _r += 1
+    if h_rev_B and h_gm:
+        B(r_gp, 2, h_rev_B * h_gm, '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_gp, col, f"={c}{r_total}*{c}{r_gm}")
+
+    r_exp_s = _r; G(_r, labels['exp_start'], 'expense_start'); _r += 1
+    r_exp_e = _r; G(_r, labels['exp_end'], 'expense_end'); _r += 1
+
+    r_exp = _r; L(_r, labels['fc_expense_ratio']); _r += 1
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_exp, col, f"={c}{r_exp_s}+({c}{r_exp_e}-{c}{r_exp_s})*{i - 1}/{N - 1}", '0.0%')
+
+    r_opex = _r; L(_r, f"{labels['fc_opex']} ({ccy_sym}{unit_suffix})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_opex, col, f"={c}{r_total}*{c}{r_exp}")
+
+    r_ebit = _r; L(_r, f"{labels['fc_ebit']} ({ccy_sym}{unit_suffix})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_ebit, col, f"={c}{r_gp}-{c}{r_opex}")
+
+    r_tax = _r; G(_r, labels['tax_rate'], 'tax_rate'); _r += 1
+
+    r_ni = _r; L(_r, f"{labels['fc_net_income']} ({ccy_sym}{unit_suffix})"); _r += 1
+    B(r_ni, 2, h_ni_B, '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        O(r_ni, col, f"={c}{r_ebit}*(1-{c}{r_tax})")
+
+    # ============================================
+    # 估值
+    # ============================================
+    S(_r, labels['section_val_forecast']); _r += 1
+    r_pe_s = _r; G(_r, f"{labels['target_pe']} 起始", 'pe_start', '0.0'); _r += 1
+    r_pe_e = _r; G(_r, f"{labels['target_pe']} 终年", 'pe_end', '0.0'); _r += 1
+
+    r_pe = _r; L(_r, labels['fc_target_pe']); _r += 1
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_pe, col, f"={c}{r_pe_s}+({c}{r_pe_e}-{c}{r_pe_s})*{i - 1}/{N - 1}", '0.0')
+
+    r_mkt = _r; L(_r, f"{labels['fc_implied_mkt_cap']} ({ccy_sym}{unit_suffix})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        O(r_mkt, col, f"={c}{r_ni}*{c}{r_pe}")
+
+    r_sh = _r; G(_r, labels['fc_shares'], 'shares_m', '#,##0'); _r += 1
+
+    r_price = _r; L(_r, f"{labels['implied_price_label']} ({ccy_sym})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        O(r_price, col, f"={c}{r_mkt}*1000/{c}{r_sh}", '#,##0.00')
+
+    r_prem = _r; L(_r, labels['fc_premium']); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_prem, col, f"=({c}{r_price}-{VAL})/{VAL}", '0.0%')
+
+    ws.column_dimensions['A'].width = 28
+    for c in range(2, TC + 2):
+        ws.column_dimensions[get_column_letter(c)].width = 14
+
+
+def build_segment_assumptions(ws, seg_asm, labels, ccy_sym='$', unit_suffix='B', sources=None):
+    """分部模型假设表 — 每分部独立TAM×市占率 + 公司级利润率/估值参数"""
+    ws.title = labels['sheet_assumptions']
+
+    ws.cell(row=1, column=1, value=labels['active_scenario'])
+    ws.cell(row=1, column=1).font = WHITE_BOLD; ws.cell(row=1, column=1).fill = HEADER_FILL
+    ws.cell(row=1, column=1).border = THIN_BORDER
+    ws.cell(row=1, column=2, value=2)
+    ws.cell(row=1, column=2).font = BLACK_BOLD; ws.cell(row=1, column=2).fill = TOGGLE_FILL
+    ws.cell(row=1, column=2).border = THIN_BORDER
+
+    dv = DataValidation(type="list", formula1='"1,2,3"', allow_blank=False)
+    dv.error = "1=Bear, 2=Base, 3=Bull"; dv.prompt = "1=Bear, 2=Base, 3=Bull"
+    ws.add_data_validation(dv); dv.add(ws["B1"])
+
+    ws.cell(row=2, column=1, value=labels['label_metric'])
+    ws.cell(row=2, column=3, value="Bear"); ws.cell(row=2, column=4, value="Base")
+    ws.cell(row=2, column=5, value="Bull"); ws.cell(row=2, column=6, value=labels['active_value'])
+    ws.cell(row=2, column=7, value=labels['source_label'])
+    style_header_row(ws, 2, 1, 7)
+    style_header_row(ws, 2, 3, 5, fill=COL_HEADER_FILL, font=BLACK_BOLD)
+    style_header_row(ws, 2, 6, 6, fill=OUTPUT_FILL, font=BLACK_BOLD)
+    style_header_row(ws, 2, 7, 7, fill=PatternFill(start_color="E8E8E8", end_color="E8E8E8", fill_type="solid"),
+                     font=Font(color="666666", bold=True))
+
+    # 分部定义: (display_name, segment_key, params_list)
+    # params_list: [(label_suffix, data_key, fmt, source_key), ...]
+    seg_defs = [
+        ("Search & Other", "search", [
+            (f"TAM起始 ({ccy_sym}{unit_suffix})", "tam_2025", '#,##0.0', 'search_tam'),
+            ("TAM CAGR Y1-Y3", "tam_cagr_1_3", '0.0%', 'search_cagr_13'),
+            ("TAM CAGR Y4-Y6", "tam_cagr_4_6", '0.0%', 'search_cagr_46'),
+            ("TAM CAGR Y7-Y10", "tam_cagr_7_10", '0.0%', 'search_cagr_710'),
+            ("市占率 起始", "share_2025", '0.0%', 'search_share_start'),
+            ("市占率 终年", "share_2035", '0.0%', 'search_share_end'),
+        ]),
+        ("YouTube Ads", "youtube", [
+            (f"TAM起始 ({ccy_sym}{unit_suffix})", "tam_2025", '#,##0.0', 'youtube_tam'),
+            ("TAM CAGR Y1-Y3", "tam_cagr_1_3", '0.0%', 'youtube_cagr_13'),
+            ("TAM CAGR Y4-Y6", "tam_cagr_4_6", '0.0%', 'youtube_cagr_46'),
+            ("TAM CAGR Y7-Y10", "tam_cagr_7_10", '0.0%', 'youtube_cagr_710'),
+            ("市占率 起始", "share_2025", '0.0%', 'youtube_share_start'),
+            ("市占率 终年", "share_2035", '0.0%', 'youtube_share_end'),
+        ]),
+        ("Google Cloud", "cloud", [
+            (f"TAM起始 ({ccy_sym}{unit_suffix})", "tam_2025", '#,##0.0', 'cloud_tam'),
+            ("TAM CAGR Y1-Y3", "tam_cagr_1_3", '0.0%', 'cloud_cagr_13'),
+            ("TAM CAGR Y4-Y6", "tam_cagr_4_6", '0.0%', 'cloud_cagr_46'),
+            ("TAM CAGR Y7-Y10", "tam_cagr_7_10", '0.0%', 'cloud_cagr_710'),
+            ("市占率 起始", "share_2025", '0.0%', 'cloud_share_start'),
+            ("市占率 终年", "share_2035", '0.0%', 'cloud_share_end'),
+        ]),
+        ("Google Network", "network", [
+            (f"起始收入 ({ccy_sym}{unit_suffix})", "revenue_2025", '#,##0.0', 'network_rev'),
+            ("年衰减率", "annual_decline", '0.0%', 'network_decline'),
+        ]),
+        ("Subscriptions", "subscriptions", [
+            (f"TAM起始 ({ccy_sym}{unit_suffix})", "tam_2025", '#,##0.0', 'subs_tam'),
+            ("TAM CAGR Y1-Y3", "tam_cagr_1_3", '0.0%', 'subs_cagr_13'),
+            ("TAM CAGR Y4-Y6", "tam_cagr_4_6", '0.0%', 'subs_cagr_46'),
+            ("TAM CAGR Y7-Y10", "tam_cagr_7_10", '0.0%', 'subs_cagr_710'),
+            ("市占率 起始", "share_2025", '0.0%', 'subs_share_start'),
+            ("市占率 终年", "share_2035", '0.0%', 'subs_share_end'),
+        ]),
+    ]
+
+    # 公司级参数
+    co_params = [
+        (f"--- {labels['section_margin']} ---", None, None, None, None),
+        (labels['gm_start'], None, "gm_start", '0.0%', 'gm_start'),
+        (labels['gm_end'], None, "gm_end", '0.0%', 'gm_end'),
+        (labels['exp_start'], None, "expense_start", '0.0%', 'expense_start'),
+        (labels['exp_end'], None, "expense_end", '0.0%', 'expense_end'),
+        (labels['tax_rate'], None, "tax_rate", '0.0%', 'tax_rate'),
+        (f"--- {labels['section_valuation']} ---", None, None, None, None),
+        (f"{labels['target_pe']} 起始", None, "pe_start", '0.0', 'pe_start'),
+        (f"{labels['target_pe']} 终年", None, "pe_end", '0.0', 'pe_end'),
+        (f"{labels['shares_m']} (M)", None, "shares_m", '#,##0', 'shares_m'),
+    ]
+
+    _r = 3
+    # 分部参数
+    for seg_name, seg_key, params in seg_defs:
+        ws.cell(row=_r, column=1, value=f"--- {seg_name} ---")
+        ws.cell(row=_r, column=1).font = BLACK_BOLD
+        ws.cell(row=_r, column=1).border = THIN_BORDER
+        _r += 1
+        for label_suffix, dk, fmt, sk in params:
+            ws.cell(row=_r, column=1, value=label_suffix)
+            ws.cell(row=_r, column=1).font = BLACK_BOLD
+            ws.cell(row=_r, column=1).border = THIN_BORDER
+            for ci, sc in enumerate(['bear', 'base', 'bull'], start=3):
+                seg_data = seg_asm.get(sc, {}).get(seg_key, {})
+                val = seg_data.get(dk) if seg_data else None
+                if val is not None:
+                    ws.cell(row=_r, column=ci, value=val)
+                style_data_cell(ws, _r, ci, font=BLUE_FONT, fill=INPUT_FILL, num_fmt=fmt)
+            ws.cell(row=_r, column=6, value=f'=INDEX(C{_r}:E{_r},$B$1)')
+            style_data_cell(ws, _r, 6, font=GREEN_FONT, fill=OUTPUT_FILL, num_fmt=fmt)
+            st = ''
+            if sources and sk in sources:
+                st = sources[sk]
+            ws.cell(row=_r, column=7, value=st)
+            ws.cell(row=_r, column=7).font = GRAY_FONT
+            ws.cell(row=_r, column=7).fill = NOTE_FILL
+            ws.cell(row=_r, column=7).border = THIN_BORDER
+            ws.cell(row=_r, column=7).alignment = WRAP_ALIGN
+            _r += 1
+
+    # 公司级参数
+    for label, seg_key, dk, fmt, sk in co_params:
+        if seg_key is None and dk is None:
+            ws.cell(row=_r, column=1, value=label)
+            ws.cell(row=_r, column=1).font = BLACK_BOLD
+            ws.cell(row=_r, column=1).border = THIN_BORDER
+            _r += 1
+            continue
+        ws.cell(row=_r, column=1, value=label)
+        ws.cell(row=_r, column=1).font = BLACK_BOLD
+        ws.cell(row=_r, column=1).border = THIN_BORDER
+        for ci, sc in enumerate(['bear', 'base', 'bull'], start=3):
+            val = seg_asm.get(sc, {}).get(dk)
+            if val is not None:
+                ws.cell(row=_r, column=ci, value=val)
+            style_data_cell(ws, _r, ci, font=BLUE_FONT, fill=INPUT_FILL, num_fmt=fmt)
+        ws.cell(row=_r, column=6, value=f'=INDEX(C{_r}:E{_r},$B$1)')
+        style_data_cell(ws, _r, 6, font=GREEN_FONT, fill=OUTPUT_FILL, num_fmt=fmt)
+        st = ''
+        if sources and sk in sources:
+            st = sources[sk]
+        ws.cell(row=_r, column=7, value=st)
+        ws.cell(row=_r, column=7).font = GRAY_FONT
+        ws.cell(row=_r, column=7).fill = NOTE_FILL
+        ws.cell(row=_r, column=7).border = THIN_BORDER
+        ws.cell(row=_r, column=7).alignment = WRAP_ALIGN
+        _r += 1
+
+    ws.column_dimensions['A'].width = 28
+    ws.column_dimensions['B'].width = 8
+    for c in ['C', 'D', 'E', 'F']:
+        ws.column_dimensions[c].width = 14
+    ws.column_dimensions['G'].width = 55
+
+    # 返回各分部参数的行号映射
+    return _r
+
+
+def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
+                               unit_suffix='B', projection_years=10, current_price=None):
+    """分部模型预测表 — 每分部独立 TAM×市占率 → 总收入 → 利润 → 估值"""
+    ws.title = labels['sheet_forecast']
+    VAL = current_price or 100
+    sn = labels['sheet_assumptions']
+    N = projection_years
+    hist_years = sorted(hist_data.keys())
+    ly_str = hist_years[-1] if hist_years else '2025A'
+    ly = int(ly_str.replace('A', ''))
+    yrs = [ly_str] + [f"{ly + i + 1}E" for i in range(N)]
+    TC = len(yrs)
+
+    ws.cell(row=1, column=1, value=labels['label_metric'])
+    for i, y in enumerate(yrs):
+        ws.cell(row=1, column=i + 2, value=y)
+    style_header_row(ws, 1, 1, TC + 1)
+    style_header_row(ws, 1, 2, TC + 1, fill=COL_HEADER_FILL, font=BLACK_BOLD)
+
+    hist = hist_data.get(ly_str, {})
+    h_rev = hist.get('revenue', 0)
+    h_rev_B = h_rev / 1000 if h_rev > 1e6 else h_rev
+    h_gm = hist.get('gross_margin', 0)
+    h_gr = hist.get('revenue_growth', 0)
+    h_ni = hist.get('net_income', 0)
+    h_ni_B = h_ni / 1000 if h_ni > 1e6 else h_ni
+
+    # 短辅助
+    def S(r, label):
+        ws.cell(row=r, column=1, value=f"--- {label} ---")
+        ws.cell(row=r, column=1).font = WHITE_BOLD; ws.cell(row=r, column=1).fill = HEADER_FILL
+        for c in range(2, TC + 2):
+            ws.cell(row=r, column=c).fill = HEADER_FILL
+
+    def L(r, text):
+        ws.cell(row=r, column=1, value=text)
+        ws.cell(row=r, column=1).font = BLACK_BOLD; ws.cell(row=r, column=1).border = THIN_BORDER
+
+    def B(r, col, val, fmt='#,##0.0'):
+        if val is not None:
+            ws.cell(row=r, column=col, value=val)
+        style_data_cell(ws, r, col, font=BLUE_FONT, fill=INPUT_FILL, num_fmt=fmt)
+
+    def O(r, col, formula, fmt='#,##0.0'):
+        ws.cell(row=r, column=col, value=formula)
+        style_data_cell(ws, r, col, font=BLACK_FONT, fill=OUTPUT_FILL, num_fmt=fmt)
+
+    def K(r, col, formula, fmt='#,##0.0'):
+        ws.cell(row=r, column=col, value=formula)
+        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt=fmt)
+
+    # 计算假设行的函数: 需要知道每个分部参数的起始行
+    # 分部参数布局: 每个分部 header(1) + params(N), 公司级参数跟在后面
+    # 我们基于 seg_defs 计算
+    seg_specs = [
+        ('search', 'Search & Other', True),   # TAM-based
+        ('youtube', 'YouTube Ads', True),
+        ('cloud', 'Google Cloud', True),
+        ('network', 'Google Network', False),  # declining
+        ('subscriptions', 'Subscriptions', True),
+    ]
+
+    # 假设行行号: header_row(3) → search(header4, params5-10) → youtube(header11, params12-17) → ...
+    arow = {}  # segment → {param_key → assumption_row}
+    _ar = 4
+    for skey, _, is_tam in seg_specs:
+        _ar += 1  # skip header
+        if is_tam:
+            arow[skey] = {
+                'tam_start': _ar, 'tam_cagr_1_3': _ar+1, 'tam_cagr_4_6': _ar+2,
+                'tam_cagr_7_10': _ar+3, 'share_start': _ar+4, 'share_end': _ar+5,
+            }
+            _ar += 6
+        else:
+            arow[skey] = {'revenue_start': _ar, 'annual_decline': _ar+1}
+            _ar += 2
+
+    # 公司级参数: (skip section header rows)
+    _ar += 1  # margin section header
+    co_ar = {
+        'gm_start': _ar, 'gm_end': _ar+1, 'expense_start': _ar+2, 'expense_end': _ar+3,
+        'tax_rate': _ar+4,
     }
+    _ar += 6  # valuation section header
+    co_ar['pe_start'] = _ar; co_ar['pe_end'] = _ar+1; co_ar['shares_m'] = _ar+2
 
-    def asum(key):
-        row = ASSUMPTION_ROWS[key]
-        sn = labels['sheet_assumptions']
-        return f"'{sn}'!$F${row}"
+    def asum_co(key):
+        return f"'{sn}'!$F${co_ar[key]}"
 
-    # --- 收入推导 ---
-    r = 2
-    ws.cell(row=r, column=1, value=f"--- {labels['section_rev_forecast']} ---")
-    ws.cell(row=r, column=1).font = WHITE_BOLD
-    ws.cell(row=r, column=1).fill = HEADER_FILL
-    for c in range(2, len(proj_years) + 2):
-        ws.cell(row=r, column=c).fill = HEADER_FILL
+    def asum_seg(seg_key, param_key):
+        return f"'{sn}'!$F${arow[seg_key][param_key]}"
 
-    r = 3
-    ws.cell(row=r, column=1, value=f"AIDC CapEx ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        if i <= 2:
-            cagr_ref = asum('tam_cagr_1_3')
-        elif i <= 5:
-            cagr_ref = asum('tam_cagr_4_6')
+    # ============================================
+    # 各分部收入推导
+    # ============================================
+    _r = 2
+    seg_rev_rows = {}
+
+    for skey, sname, is_tam in seg_specs:
+        S(_r, sname); _r += 1  # section header
+
+        if is_tam:
+            # TAM参数行(绿)
+            ws.cell(row=_r, column=1, value=f"TAM 起始 ({ccy_sym}{unit_suffix})")
+            ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+            for i in range(TC):
+                ws.cell(row=_r, column=i + 2, value=f"={asum_seg(skey, 'tam_start')}")
+                style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='#,##0.0')
+            r_ts = _r; _r += 1
+
+            for lbl, pk in [("TAM CAGR Y1-Y3", 'tam_cagr_1_3'),
+                             ("TAM CAGR Y4-Y6", 'tam_cagr_4_6'),
+                             ("TAM CAGR Y7-Y10", 'tam_cagr_7_10')]:
+                ws.cell(row=_r, column=1, value=lbl)
+                ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+                for i in range(TC):
+                    ws.cell(row=_r, column=i + 2, value=f"={asum_seg(skey, pk)}")
+                    style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+                _r += 1
+
+            # TAM 计算
+            r_tam = _r
+            L(_r, f"TAM ({ccy_sym}{unit_suffix})"); _r += 1
+            for i in range(1, N + 1):
+                col = i + 1; c = get_column_letter(col)
+                r_c = r_ts + 1 if i <= 3 else (r_ts + 2 if i <= 6 else r_ts + 3)
+                if i == 1:
+                    K(r_tam, col, f"={c}{r_ts}*(1+{c}{r_c})")
+                else:
+                    pc = get_column_letter(col - 1)
+                    K(r_tam, col, f"={pc}{r_tam}*(1+{c}{r_c})")
+
+            # 市占率参数(绿)
+            ws.cell(row=_r, column=1, value="市占率 起始")
+            ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+            for i in range(TC):
+                ws.cell(row=_r, column=i + 2, value=f"={asum_seg(skey, 'share_start')}")
+                style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+            r_ss = _r; _r += 1
+
+            ws.cell(row=_r, column=1, value="市占率 终年")
+            ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+            for i in range(TC):
+                ws.cell(row=_r, column=i + 2, value=f"={asum_seg(skey, 'share_end')}")
+                style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+            r_se = _r; _r += 1
+
+            # 市占率 线性插值
+            r_sh = _r
+            L(_r, "市占率"); _r += 1
+            for i in range(0, N + 1):
+                col = i + 1; c = get_column_letter(col)
+                if i == 0:
+                    K(r_sh, col, f"={c}{r_ss}", '0.0%')
+                else:
+                    K(r_sh, col, f"={c}{r_ss}+({c}{r_se}-{c}{r_ss})*{i}/{N}", '0.0%')
+
+            # 分部收入 = TAM × 市占率
+            r_srev = _r
+            L(_r, f"{sname} 收入 ({ccy_sym}{unit_suffix})"); _r += 1
+            for i in range(1, N + 1):
+                col = i + 1; c = get_column_letter(col)
+                O(r_srev, col, f"={c}{r_tam}*{c}{r_sh}")
+            seg_rev_rows[skey] = r_srev
+
         else:
-            cagr_ref = asum('tam_cagr_7_10')
-        if i == 0:
-            ws.cell(row=r, column=col, value=f"={asum('tam_start')}*(1+{cagr_ref})")
-        else:
-            prev_col = get_column_letter(col - 1)
-            ws.cell(row=r, column=col, value=f"={prev_col}{r}*(1+{cagr_ref})")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='#,##0.0')
+            # Network: declining
+            ws.cell(row=_r, column=1, value=f"起始收入 ({ccy_sym}{unit_suffix})")
+            ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+            for i in range(TC):
+                ws.cell(row=_r, column=i + 2, value=f"={asum_seg(skey, 'revenue_start')}")
+                style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='#,##0.0')
+            r_ns = _r; _r += 1
 
-    r = 4
-    ws.cell(row=r, column=1, value=f"{labels['sam']} ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}3*{asum('reachable_rate')}")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='#,##0.0')
+            ws.cell(row=_r, column=1, value="年衰减率")
+            ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+            for i in range(TC):
+                ws.cell(row=_r, column=i + 2, value=f"={asum_seg(skey, 'annual_decline')}")
+                style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+            r_nd = _r; _r += 1
 
-    r = 5
-    ws.cell(row=r, column=1, value=labels['market_share'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        ws.cell(row=r, column=col,
-                value=f"={asum('share_start')}+({asum('share_end')}-{asum('share_start')})*{i}/{projection_years - 1}")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='0.0%')
+            r_nrev = _r
+            L(_r, f"{sname} 收入 ({ccy_sym}{unit_suffix})"); _r += 1
+            for i in range(1, N + 1):
+                col = i + 1; c = get_column_letter(col)
+                if i == 1:
+                    K(r_nrev, col, f"={c}{r_ns}*(1+{c}{r_nd})")
+                else:
+                    pc = get_column_letter(col - 1)
+                    K(r_nrev, col, f"={pc}{r_nrev}*(1+{c}{r_nd})")
+            seg_rev_rows[skey] = r_nrev
 
-    r = 6
-    ws.cell(row=r, column=1, value=f"{labels['fc_revenue']} ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}4*{c}5")
-        style_data_cell(ws, r, col, font=BLACK_FONT, fill=OUTPUT_FILL, num_fmt='#,##0.0')
+    # ============================================
+    # 总收入
+    # ============================================
+    S(_r, "Total Revenue"); _r += 1
+    r_total = _r
+    L(_r, f"总收入 ({ccy_sym}{unit_suffix})"); _r += 1
+    B(r_total, 2, h_rev_B, '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        parts = '+'.join(f"{c}{seg_rev_rows[s]}" for s, _, _ in seg_specs)
+        O(r_total, col, parts)
 
-    r = 7
-    ws.cell(row=r, column=1, value=labels['fc_rev_growth'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        if i == 0:
-            last_year_data = hist_data.get(hist_years[-1], {}) if hist_years else {}
-            hist_rev = last_year_data.get('revenue')
-            if hist_rev:
-                ws.cell(row=r, column=col,
-                        value=f"=({c}6*1000-{hist_rev})/{hist_rev}")
-        else:
-            prev_col = get_column_letter(col - 1)
-            ws.cell(row=r, column=col, value=f"=({c}6-{prev_col}6)/{prev_col}6")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='0.0%')
+    r_growth = _r
+    L(_r, "总收入 增速"); _r += 1
+    B(r_growth, 2, h_gr, '0.0%')
+    c3 = get_column_letter(2)
+    if h_rev_B:
+        K(r_growth, 2, f"=({c3}{r_total}-{h_rev_B})/{h_rev_B}", '0.0%')
+    for i in range(2, N + 1):
+        col = i + 1; c = get_column_letter(col); pc = get_column_letter(col - 1)
+        K(r_growth, col, f"=({c}{r_total}-{pc}{r_total})/{pc}{r_total}", '0.0%')
 
-    # --- 利润推导 ---
-    r = 9
-    ws.cell(row=r, column=1, value=f"--- {labels['section_profit_forecast']} ---")
-    ws.cell(row=r, column=1).font = WHITE_BOLD
-    ws.cell(row=r, column=1).fill = HEADER_FILL
-    for c in range(2, len(proj_years) + 2):
-        ws.cell(row=r, column=c).fill = HEADER_FILL
+    # ============================================
+    # 利润推导 (同简单模型, 使用动态行号)
+    # ============================================
+    S(_r, labels['section_profit_forecast']); _r += 1
+    r_gm_s = _r
+    ws.cell(row=_r, column=1, value=labels['gm_start'])
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('gm_start')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+    _r += 1
 
-    r = 10
-    ws.cell(row=r, column=1, value=labels['fc_gm'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        ws.cell(row=r, column=i + 2,
-                value=f"={asum('gm_start')}+({asum('gm_end')}-{asum('gm_start')})*{i}/{projection_years - 1}")
-        style_data_cell(ws, r, i + 2, font=BLACK_FONT, num_fmt='0.0%')
+    r_gm_e = _r
+    ws.cell(row=_r, column=1, value=labels['gm_end'])
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('gm_end')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+    _r += 1
 
-    r = 11
-    ws.cell(row=r, column=1, value=f"{labels['fc_gross_profit']} ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}6*{c}10")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='#,##0.0')
+    r_gm = _r; L(_r, labels['fc_gm']); _r += 1
+    B(r_gm, 2, h_gm, '0.0%')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_gm, col, f"={c}{r_gm_s}+({c}{r_gm_e}-{c}{r_gm_s})*{i - 1}/{N - 1}", '0.0%')
 
-    r = 12
-    ws.cell(row=r, column=1, value=labels['fc_expense_ratio'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        ws.cell(row=r, column=i + 2,
-                value=f"={asum('expense_start')}+({asum('expense_end')}-{asum('expense_start')})*{i}/{projection_years - 1}")
-        style_data_cell(ws, r, i + 2, font=BLACK_FONT, num_fmt='0.0%')
+    r_gp = _r; L(_r, f"{labels['fc_gross_profit']} ({ccy_sym}{unit_suffix})"); _r += 1
+    if h_rev_B and h_gm:
+        B(r_gp, 2, h_rev_B * h_gm, '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_gp, col, f"={c}{r_total}*{c}{r_gm}")
 
-    r = 13
-    ws.cell(row=r, column=1, value=f"{labels['fc_opex']} ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}6*{c}12")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='#,##0.0')
+    r_exp_s = _r
+    ws.cell(row=_r, column=1, value=labels['exp_start'])
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('expense_start')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+    _r += 1
 
-    r = 14
-    ws.cell(row=r, column=1, value=f"{labels['fc_ebit']} ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}11-{c}13")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='#,##0.0')
+    r_exp_e = _r
+    ws.cell(row=_r, column=1, value=labels['exp_end'])
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('expense_end')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+    _r += 1
 
-    r = 15
-    ws.cell(row=r, column=1, value=labels['fc_tax_rate'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        ws.cell(row=r, column=i + 2, value=f"={asum('tax_rate')}")
-        style_data_cell(ws, r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+    r_exp = _r; L(_r, labels['fc_expense_ratio']); _r += 1
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_exp, col, f"={c}{r_exp_s}+({c}{r_exp_e}-{c}{r_exp_s})*{i - 1}/{N - 1}", '0.0%')
 
-    r = 16
-    ws.cell(row=r, column=1, value=f"{labels['fc_net_income']} ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}14*(1-{c}15)")
-        style_data_cell(ws, r, col, font=BLACK_FONT, fill=OUTPUT_FILL, num_fmt='#,##0.0')
+    r_opex = _r; L(_r, f"{labels['fc_opex']} ({ccy_sym}{unit_suffix})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_opex, col, f"={c}{r_total}*{c}{r_exp}")
 
-    # --- 估值 ---
-    r = 18
-    ws.cell(row=r, column=1, value=f"--- {labels['section_val_forecast']} ---")
-    ws.cell(row=r, column=1).font = WHITE_BOLD
-    ws.cell(row=r, column=1).fill = HEADER_FILL
-    for c in range(2, len(proj_years) + 2):
-        ws.cell(row=r, column=c).fill = HEADER_FILL
+    r_ebit = _r; L(_r, f"{labels['fc_ebit']} ({ccy_sym}{unit_suffix})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_ebit, col, f"={c}{r_gp}-{c}{r_opex}")
 
-    r = 19
-    ws.cell(row=r, column=1, value=labels['fc_target_pe'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        ws.cell(row=r, column=i + 2, value=f"={asum('target_pe')}")
-        style_data_cell(ws, r, i + 2, font=GREEN_FONT, num_fmt='0.0')
+    r_tax = _r
+    ws.cell(row=_r, column=1, value=labels['tax_rate'])
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('tax_rate')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0%')
+    _r += 1
 
-    r = 20
-    ws.cell(row=r, column=1, value=f"{labels['fc_implied_mkt_cap']} ({ccy_sym}{unit_suffix})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}16*{c}19")
-        style_data_cell(ws, r, col, font=BLACK_FONT, fill=OUTPUT_FILL, num_fmt='#,##0.0')
+    r_ni = _r; L(_r, f"{labels['fc_net_income']} ({ccy_sym}{unit_suffix})"); _r += 1
+    B(r_ni, 2, h_ni_B, '#,##0.0')
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        O(r_ni, col, f"={c}{r_ebit}*(1-{c}{r_tax})")
 
-    r = 21
-    ws.cell(row=r, column=1, value=labels['fc_shares'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        ws.cell(row=r, column=i + 2, value=f"={asum('shares_m')}")
-        style_data_cell(ws, r, i + 2, font=GREEN_FONT, num_fmt='#,##0')
+    # ============================================
+    # 估值
+    # ============================================
+    S(_r, labels['section_val_forecast']); _r += 1
+    r_pe_s = _r
+    ws.cell(row=_r, column=1, value=f"{labels['target_pe']} 起始")
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('pe_start')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0')
+    _r += 1
 
-    r = 22
-    ws.cell(row=r, column=1, value=f"{labels['implied_price_label']} ({ccy_sym})")
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"={c}20*1000/{c}21")
-        style_data_cell(ws, r, col, font=BLACK_FONT, fill=OUTPUT_FILL, num_fmt='#,##0.00')
+    r_pe_e = _r
+    ws.cell(row=_r, column=1, value=f"{labels['target_pe']} 终年")
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('pe_end')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='0.0')
+    _r += 1
 
-    r = 23
-    ws.cell(row=r, column=1, value=labels['fc_premium'])
-    ws.cell(row=r, column=1).font = BLACK_BOLD
-    ws.cell(row=r, column=1).border = THIN_BORDER
-    for i in range(projection_years):
-        col = i + 2
-        c = get_column_letter(col)
-        ws.cell(row=r, column=col, value=f"=({c}22-{VAL_CURRENT_PRICE})/{VAL_CURRENT_PRICE}")
-        style_data_cell(ws, r, col, font=BLACK_FONT, num_fmt='0.0%')
+    r_pe = _r; L(_r, labels['fc_target_pe']); _r += 1
+    for i in range(1, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_pe, col, f"={c}{r_pe_s}+({c}{r_pe_e}-{c}{r_pe_s})*{i - 1}/{N - 1}", '0.0')
 
-    ws.column_dimensions['A'].width = 26
-    for c in range(2, len(proj_years) + 2):
+    r_mkt = _r; L(_r, f"{labels['fc_implied_mkt_cap']} ({ccy_sym}{unit_suffix})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        O(r_mkt, col, f"={c}{r_ni}*{c}{r_pe}")
+
+    r_sh = _r
+    ws.cell(row=_r, column=1, value=labels['fc_shares'])
+    ws.cell(row=_r, column=1).font = BLACK_BOLD; ws.cell(row=_r, column=1).border = THIN_BORDER
+    for i in range(TC):
+        ws.cell(row=_r, column=i + 2, value=f"={asum_co('shares_m')}")
+        style_data_cell(ws, _r, i + 2, font=GREEN_FONT, num_fmt='#,##0')
+    _r += 1
+
+    r_price = _r; L(_r, f"{labels['implied_price_label']} ({ccy_sym})"); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        O(r_price, col, f"={c}{r_mkt}*1000/{c}{r_sh}", '#,##0.00')
+
+    r_prem = _r; L(_r, labels['fc_premium']); _r += 1
+    for i in range(0, N + 1):
+        col = i + 1; c = get_column_letter(col)
+        K(r_prem, col, f"=({c}{r_price}-{VAL})/{VAL}", '0.0%')
+
+    ws.column_dimensions['A'].width = 28
+    for c in range(2, TC + 2):
         ws.column_dimensions[get_column_letter(c)].width = 14
 
 
@@ -738,6 +1294,7 @@ def main():
     data = {}
     val_data = {}
     assumptions = {}
+    segment_assumptions = {}
     checks = []
     sources = {}
     fy_analysis = {}
@@ -751,6 +1308,7 @@ def main():
             data = raw.get('hist_data', raw.get('data', {}))
             val_data = raw.get('val_data', {})
             assumptions = raw.get('assumptions', {})
+            segment_assumptions = raw.get('segment_assumptions', {})
             checks = raw.get('checks', [])
             sources = raw.get('sources', {})
             fy_analysis = raw.get('fiscal_year_analysis', {})
@@ -781,6 +1339,19 @@ def main():
         current_price = val_data.get('current_price')
         build_projections(ws4, assumptions, data, labels, ccy_sym, 'B',
                           args.projection_years, current_price=current_price)
+
+        if checks:
+            ws5 = wb.create_sheet()
+            build_sanity_checks(ws5, checks, labels)
+
+    elif segment_assumptions:
+        ws3 = wb.create_sheet()
+        build_segment_assumptions(ws3, segment_assumptions, labels, ccy_sym, 'B', sources)
+
+        ws4 = wb.create_sheet()
+        current_price = val_data.get('current_price')
+        build_segment_projections(ws4, segment_assumptions, data, labels, ccy_sym, 'B',
+                                  args.projection_years, current_price=current_price)
 
         if checks:
             ws5 = wb.create_sheet()
