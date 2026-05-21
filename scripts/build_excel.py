@@ -526,7 +526,7 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
     L(7, f"TAM ({ccy_sym}{unit_suffix})")
     B(7, 2, f"={asum('tam_start')}", '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         r_cagr = 4 if i <= 3 else (5 if i <= 6 else 6)
         if i == 1:
             K(7, col, f"={c}3*(1+{c}{r_cagr})")
@@ -538,7 +538,7 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
 
     L(9, f"{labels['sam']} ({ccy_sym}{unit_suffix})")
     for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(9, col, f"={c}7*{c}8")
 
     G(10, labels['share_start'], 'share_start')
@@ -546,13 +546,13 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
 
     L(12, labels['market_share'])
     for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(12, col, f"={c}10" if i == 0 else f"={c}10+({c}11-{c}10)*{i}/{N}", '0.0%')
 
     L(13, f"DC 收入 ({ccy_sym}{unit_suffix})")
     B(13, 2, h_rev_B, '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         O(13, col, f"={c}9*{c}12")
 
     # ============================================
@@ -572,7 +572,7 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
             L(_r, f"{seg_label} 收入 ({ccy_sym}{unit_suffix})"); _r += 1
             seg_rows[seg] = r_rev
             for i in range(1, N + 1):
-                col = i + 1; c = get_column_letter(col); pc = get_column_letter(col - 1)
+                col = i + 2; c = get_column_letter(col); pc = get_column_letter(col - 1)
                 r_cagr = r_rev - 3 if i <= 3 else (r_rev - 2 if i <= 6 else r_rev - 1)
                 K(r_rev, col,
                   f"={c}{r_rev-4}*(1+{c}{r_cagr})" if i == 1 else f"={pc}{r_rev}*(1+{c}{r_cagr})")
@@ -582,7 +582,7 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
         r_oem = _r
         L(_r, f"OEM 收入 ({ccy_sym}{unit_suffix})"); _r += 1
         for i in range(1, N + 1):
-            col = i + 1
+            col = i + 2
             ws.cell(row=r_oem, column=col, value=f"={asum('oem_rev')}")
             style_data_cell(ws, r_oem, col, font=GREEN_FONT, num_fmt='#,##0.0')
 
@@ -592,7 +592,7 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
     L(_r, f"{labels.get('total_revenue', 'Total')} ({ccy_sym}{unit_suffix})"); _r += 1
     B(r_total, 2, h_rev_B, '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         if has_seg:
             parts = '+'.join(f"{c}{seg_rows[s]}" for s in ['gaming', 'proviz', 'auto'] + ['oem'] if s in seg_rows)
             # OEM row
@@ -605,11 +605,8 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
     r_growth = _r
     L(_r, f"总收入 增速"); _r += 1
     B(r_growth, 2, h_gr, '0.0%')
-    c3 = get_column_letter(2)
-    if h_rev_B:
-        K(r_growth, 2, f"=({c3}{r_total}-{h_rev_B})/{h_rev_B}", '0.0%')
-    for i in range(2, N + 1):
-        col = i + 1; c = get_column_letter(col); pc = get_column_letter(col - 1)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col); pc = get_column_letter(col - 1)
         K(r_growth, col, f"=({c}{r_total}-{pc}{r_total})/{pc}{r_total}", '0.0%')
 
     # ============================================
@@ -622,14 +619,14 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
     r_gm = _r; L(_r, labels['fc_gm']); _r += 1
     B(r_gm, 2, h_gm, '0.0%')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_gm, col, f"={c}{r_gm_start}+({c}{r_gm_end}-{c}{r_gm_start})*{i - 1}/{N - 1}", '0.0%')
 
     r_gp = _r; L(_r, f"{labels['fc_gross_profit']} ({ccy_sym}{unit_suffix})"); _r += 1
     if h_rev_B and h_gm:
         B(r_gp, 2, h_rev_B * h_gm, '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_gp, col, f"={c}{r_total}*{c}{r_gm}")
 
     r_exp_s = _r; G(_r, labels['exp_start'], 'expense_start'); _r += 1
@@ -637,17 +634,17 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
 
     r_exp = _r; L(_r, labels['fc_expense_ratio']); _r += 1
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_exp, col, f"={c}{r_exp_s}+({c}{r_exp_e}-{c}{r_exp_s})*{i - 1}/{N - 1}", '0.0%')
 
     r_opex = _r; L(_r, f"{labels['fc_opex']} ({ccy_sym}{unit_suffix})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         K(r_opex, col, f"={c}{r_total}*{c}{r_exp}")
 
     r_ebit = _r; L(_r, f"{labels['fc_ebit']} ({ccy_sym}{unit_suffix})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         K(r_ebit, col, f"={c}{r_gp}-{c}{r_opex}")
 
     r_tax = _r; G(_r, labels['tax_rate'], 'tax_rate'); _r += 1
@@ -655,7 +652,7 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
     r_ni = _r; L(_r, f"{labels['fc_net_income']} ({ccy_sym}{unit_suffix})"); _r += 1
     B(r_ni, 2, h_ni_B, '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         O(r_ni, col, f"={c}{r_ebit}*(1-{c}{r_tax})")
 
     # ============================================
@@ -667,24 +664,24 @@ def build_projections(ws, assumptions, hist_data, labels, ccy_sym='$',
 
     r_pe = _r; L(_r, labels['fc_target_pe']); _r += 1
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_pe, col, f"={c}{r_pe_s}+({c}{r_pe_e}-{c}{r_pe_s})*{i - 1}/{N - 1}", '0.0')
 
     r_mkt = _r; L(_r, f"{labels['fc_implied_mkt_cap']} ({ccy_sym}{unit_suffix})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         O(r_mkt, col, f"={c}{r_ni}*{c}{r_pe}")
 
     r_sh = _r; G(_r, labels['fc_shares'], 'shares_m', '#,##0'); _r += 1
 
     r_price = _r; L(_r, f"{labels['implied_price_label']} ({ccy_sym})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         O(r_price, col, f"={c}{r_mkt}*1000/{c}{r_sh}", '#,##0.00')
 
     r_prem = _r; L(_r, labels['fc_premium']); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         K(r_prem, col, f"=({c}{r_price}-{VAL})/{VAL}", '0.0%')
 
     ws.column_dimensions['A'].width = 28
@@ -963,7 +960,7 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
             r_tam = _r
             L(_r, f"TAM ({ccy_sym}{unit_suffix})"); _r += 1
             for i in range(1, N + 1):
-                col = i + 1; c = get_column_letter(col)
+                col = i + 2; c = get_column_letter(col)
                 r_c = r_ts + 1 if i <= 3 else (r_ts + 2 if i <= 6 else r_ts + 3)
                 if i == 1:
                     K(r_tam, col, f"={c}{r_ts}*(1+{c}{r_c})")
@@ -990,7 +987,7 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
             r_sh = _r
             L(_r, "市占率"); _r += 1
             for i in range(0, N + 1):
-                col = i + 1; c = get_column_letter(col)
+                col = i + 2; c = get_column_letter(col)
                 if i == 0:
                     K(r_sh, col, f"={c}{r_ss}", '0.0%')
                 else:
@@ -1000,7 +997,7 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
             r_srev = _r
             L(_r, f"{sname} 收入 ({ccy_sym}{unit_suffix})"); _r += 1
             for i in range(1, N + 1):
-                col = i + 1; c = get_column_letter(col)
+                col = i + 2; c = get_column_letter(col)
                 O(r_srev, col, f"={c}{r_tam}*{c}{r_sh}")
             seg_rev_rows[skey] = r_srev
 
@@ -1023,7 +1020,7 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
             r_nrev = _r
             L(_r, f"{sname} 收入 ({ccy_sym}{unit_suffix})"); _r += 1
             for i in range(1, N + 1):
-                col = i + 1; c = get_column_letter(col)
+                col = i + 2; c = get_column_letter(col)
                 if i == 1:
                     K(r_nrev, col, f"={c}{r_ns}*(1+{c}{r_nd})")
                 else:
@@ -1039,18 +1036,15 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
     L(_r, f"总收入 ({ccy_sym}{unit_suffix})"); _r += 1
     B(r_total, 2, h_rev_B, '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         parts = '+'.join(f"{c}{seg_rev_rows[s]}" for s, _, _ in seg_specs)
         O(r_total, col, parts)
 
     r_growth = _r
     L(_r, "总收入 增速"); _r += 1
     B(r_growth, 2, h_gr, '0.0%')
-    c3 = get_column_letter(2)
-    if h_rev_B:
-        K(r_growth, 2, f"=({c3}{r_total}-{h_rev_B})/{h_rev_B}", '0.0%')
-    for i in range(2, N + 1):
-        col = i + 1; c = get_column_letter(col); pc = get_column_letter(col - 1)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col); pc = get_column_letter(col - 1)
         K(r_growth, col, f"=({c}{r_total}-{pc}{r_total})/{pc}{r_total}", '0.0%')
 
     # ============================================
@@ -1076,14 +1070,14 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
     r_gm = _r; L(_r, labels['fc_gm']); _r += 1
     B(r_gm, 2, h_gm, '0.0%')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_gm, col, f"={c}{r_gm_s}+({c}{r_gm_e}-{c}{r_gm_s})*{i - 1}/{N - 1}", '0.0%')
 
     r_gp = _r; L(_r, f"{labels['fc_gross_profit']} ({ccy_sym}{unit_suffix})"); _r += 1
     if h_rev_B and h_gm:
         B(r_gp, 2, h_rev_B * h_gm, '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_gp, col, f"={c}{r_total}*{c}{r_gm}")
 
     r_exp_s = _r
@@ -1104,17 +1098,17 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
 
     r_exp = _r; L(_r, labels['fc_expense_ratio']); _r += 1
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_exp, col, f"={c}{r_exp_s}+({c}{r_exp_e}-{c}{r_exp_s})*{i - 1}/{N - 1}", '0.0%')
 
     r_opex = _r; L(_r, f"{labels['fc_opex']} ({ccy_sym}{unit_suffix})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         K(r_opex, col, f"={c}{r_total}*{c}{r_exp}")
 
     r_ebit = _r; L(_r, f"{labels['fc_ebit']} ({ccy_sym}{unit_suffix})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         K(r_ebit, col, f"={c}{r_gp}-{c}{r_opex}")
 
     r_tax = _r
@@ -1128,7 +1122,7 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
     r_ni = _r; L(_r, f"{labels['fc_net_income']} ({ccy_sym}{unit_suffix})"); _r += 1
     B(r_ni, 2, h_ni_B, '#,##0.0')
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         O(r_ni, col, f"={c}{r_ebit}*(1-{c}{r_tax})")
 
     # ============================================
@@ -1153,12 +1147,12 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
 
     r_pe = _r; L(_r, labels['fc_target_pe']); _r += 1
     for i in range(1, N + 1):
-        col = i + 1; c = get_column_letter(col)
+        col = i + 2; c = get_column_letter(col)
         K(r_pe, col, f"={c}{r_pe_s}+({c}{r_pe_e}-{c}{r_pe_s})*{i - 1}/{N - 1}", '0.0')
 
     r_mkt = _r; L(_r, f"{labels['fc_implied_mkt_cap']} ({ccy_sym}{unit_suffix})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         O(r_mkt, col, f"={c}{r_ni}*{c}{r_pe}")
 
     r_sh = _r
@@ -1170,13 +1164,13 @@ def build_segment_projections(ws, seg_asm, hist_data, labels, ccy_sym='$',
     _r += 1
 
     r_price = _r; L(_r, f"{labels['implied_price_label']} ({ccy_sym})"); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         O(r_price, col, f"={c}{r_mkt}*1000/{c}{r_sh}", '#,##0.00')
 
     r_prem = _r; L(_r, labels['fc_premium']); _r += 1
-    for i in range(0, N + 1):
-        col = i + 1; c = get_column_letter(col)
+    for i in range(1, N + 1):
+        col = i + 2; c = get_column_letter(col)
         K(r_prem, col, f"=({c}{r_price}-{VAL})/{VAL}", '0.0%')
 
     ws.column_dimensions['A'].width = 28
